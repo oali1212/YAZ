@@ -3,6 +3,7 @@ import openpyxl.reader
 from openpyxl.utils import get_column_letter
 import datetime
 import os
+import configparser
 class YAZ:
     def __init__(self): 
         self.main_sheet_titles = ["Date", "Time", "Service","Sub Service", "Extras", "Price EGP", "Discount %", "Notes",  "Operator"]
@@ -10,6 +11,7 @@ class YAZ:
         self.services_list = ["Service_A", "Service_B", "Service_B"]
         self.main_sheet_name = "main_sheet.xlsx"
     def adjust_cell_width(self,sheet):
+        
         # Autofit column width
         for column in sheet.columns:
             max_length = 0
