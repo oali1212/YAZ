@@ -4,11 +4,14 @@ from PyQt5.QtGui import QPixmap, QPainter, QFont, QPainterPath
 from PyQt5.QtCore import Qt, QRectF
 
 class Reports(QPushButton):
-    def __init__(self, label, image_path=None, parent=None):
-        super().__init__(parent)
+    def __init__(self):
+        super().__init__()
+        self.label = ""  # Initialize label attribute with a default value
+        self.setFixedSize(150, 150)  # Set a fixed size for each button
+
+    def set_report(self, label, image_path=None):
         self.label = label
         self.image_path = image_path
-        self.setFixedSize(150, 150)  # Set a fixed size for each button
 
     def paintEvent(self, event):
         painter = QPainter(self)
@@ -19,7 +22,7 @@ class Reports(QPushButton):
         painter.setBrush(Qt.white)
         painter.drawEllipse(rect)
         
-        if self.image_path:
+        if hasattr(self, 'image_path') and self.image_path:
             pixmap = QPixmap(self.image_path).scaled(self.size(), Qt.KeepAspectRatio, Qt.SmoothTransformation)
 
             # Create a circular path for masking
@@ -37,7 +40,7 @@ class Reports(QPushButton):
         painter.setFont(QFont('Arial', 12, QFont.Bold))
         painter.drawText(rect, Qt.AlignCenter, self.label)
 
-class NailSelectionWindow(QWidget):
+class ReportsPage(QWidget):
     def __init__(self):
         super().__init__()
 
@@ -63,20 +66,11 @@ class NailSelectionWindow(QWidget):
             }
         """)
 
-        minimize_button = QPushButton("_")
-        minimize_button.setFixedSize(40, 40)
-        minimize_button.setStyleSheet("background-color: black; color: white;")
-        minimize_button.clicked.connect(self.showMinimized)
 
-        close_button = QPushButton("X")
-        close_button.setFixedSize(40, 40)
-        close_button.setStyleSheet("background-color: black; color: white;")
-        close_button.clicked.connect(self.close)
 
         top_layout.addWidget(back_button)
         top_layout.addStretch()
-        top_layout.addWidget(minimize_button)
-        top_layout.addWidget(close_button)
+
 
         main_layout.addLayout(top_layout)
 
@@ -90,7 +84,8 @@ class NailSelectionWindow(QWidget):
         positions = [(i, j) for i in range(3) for j in range(3)]
 
         for position, (label, image) in zip(positions, buttons):
-            button = Reports(label, image)
+            button = Reports()
+            button.set_report(label, image)
             grid_layout.addWidget(button, *position)
         
         proceed_button = QPushButton("DONE PRODUCT SELECTION")
@@ -104,6 +99,6 @@ class NailSelectionWindow(QWidget):
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-    window = NailSelectionWindow()
+    window = ReportsPage()
     window.show()
     sys.exit(app.exec_())

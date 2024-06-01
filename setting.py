@@ -3,11 +3,11 @@ from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QPu
 from PyQt5.QtGui import QFont, QIcon
 from PyQt5.QtCore import Qt
 
-class Settings(QWidget):
+class SettingsPage(QWidget):
     def __init__(self):
         super().__init__()
 
-        self.setWindowTitle("Settings")
+        self.setWindowTitle("SettingsPage")
         self.setGeometry(100, 100, 800, 600)  # Set window size
         self.setStyleSheet("background-color: #F5F5DC;")  # Background color
 
@@ -89,6 +89,6 @@ class Settings(QWidget):
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-    window = Settings()
+    window = SettingsPage()
     window.show()
     sys.exit(app.exec_())

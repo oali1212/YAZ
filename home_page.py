@@ -36,7 +36,7 @@ class HomePage(QWidget):
                 background-color: rgba(0, 0, 0, 50%);
             }
         """)
-        self.services_button.setText("Services  ")
+        self.services_button.setText("Services")
         self.services_button.setFont(QFont("Arial", 15, QFont.Bold))
         self.services_button.setCursor(Qt.PointingHandCursor)
         grid_layout.addWidget(self.services_button, 0, 0)

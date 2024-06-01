@@ -3,7 +3,7 @@ from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QPu
 from PyQt5.QtGui import QFont
 from PyQt5.QtCore import Qt
 
-class Customers(QWidget):
+class CustomersPage(QWidget):
     def __init__(self):
         super().__init__()
 

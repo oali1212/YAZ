@@ -1,18 +1,16 @@
 import sys
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
-from PyQt5.QtCore import *
+from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QPushButton, QVBoxLayout, QHBoxLayout
+from PyQt5.QtGui import QIcon, QPixmap, QPainter, QBrush, QPen
+from PyQt5.QtCore import Qt, QSize, QRectF
 
 class Services(QPushButton):
-    def __init__(self):
+    def __init__(self, image_path, size):
         super().__init__()
-        self.setStyleSheet("border: none;")
-
-    def set_image(self, image_path, size):
         self.size = size
         self.setFixedSize(size, size)
         self.setIcon(QIcon(self.create_circular_pixmap(image_path, size)))
         self.setIconSize(QSize(size, size))
+        self.setStyleSheet("border: none;")
 
     def create_circular_pixmap(self, image_path, size):
         pixmap = QPixmap(image_path).scaled(size, size, Qt.KeepAspectRatioByExpanding, Qt.SmoothTransformation)
@@ -27,7 +25,7 @@ class Services(QPushButton):
         painter.setPen(Qt.NoPen)
         painter.drawEllipse(rect)
         painter.end()
-        
+
         return circular_pixmap
 
 class ServicesPage(QWidget):
@@ -45,9 +43,9 @@ class ServicesPage(QWidget):
         # Top layout with Back button, minimize, and close buttons
         top_layout = QHBoxLayout()
         
-        self.back_button = QPushButton("BACK")
-        self.back_button.setFixedSize(100, 40)
-        self.back_button.setStyleSheet("""
+        back_button = QPushButton("BACK")
+        back_button.setFixedSize(100, 40)
+        back_button.setStyleSheet("""
             QPushButton {
                 background-color: black; 
                 color: white; 
@@ -58,12 +56,10 @@ class ServicesPage(QWidget):
                 background-color: #333;
             }
         """)
-  
+        back_button.clicked.connect(self.close)  # Close the window when the button is clicked
 
-
-        top_layout.addWidget(self.back_button, alignment=Qt.AlignLeft)
+        top_layout.addWidget(back_button, alignment=Qt.AlignLeft)
         top_layout.addStretch()
-
 
         layout.addLayout(top_layout)
 
@@ -78,24 +74,45 @@ class ServicesPage(QWidget):
         middle_layout = QHBoxLayout()
         middle_layout.setSpacing(20)  # Adjust spacing between buttons
 
-        services_info = [
-            ("Nails", ".//img//nails.jpg"),
-            ("Pedicure", ".//img//pedicure.jpg"),
-            ("Facial", ".//img//facial.jpg"),
-            ("Eyelashes", ".//img//eyelashes.jpg")
-        ]
+        # Button 1
+        self.nails_button = Services(".//img//nails.jpg", 150)
+        label1 = QLabel("Nails")
+        label1.setAlignment(Qt.AlignCenter)
+        label1.setStyleSheet("color: black; font-size: 16px;")
+        vbox1 = QVBoxLayout()
+        vbox1.addWidget(self.nails_button, alignment=Qt.AlignCenter)
+        vbox1.addWidget(label1, alignment=Qt.AlignCenter)
+        middle_layout.addLayout(vbox1)
 
-        for text, image_path in services_info:
-            button = Services()
-            button.set_image(image_path, 150)
-            label = QLabel(text)
-            label.setAlignment(Qt.AlignCenter)
-            label.setStyleSheet("color: black; font-size: 16px;")
+        # Button 2
+        self.pedicure_button = Services(".//img//pedicure.jpg", 150)
+        label2 = QLabel("Pedicure")
+        label2.setAlignment(Qt.AlignCenter)
+        label2.setStyleSheet("color: black; font-size: 16px;")
+        vbox2 = QVBoxLayout()
+        vbox2.addWidget(self.pedicure_button, alignment=Qt.AlignCenter)
+        vbox2.addWidget(label2, alignment=Qt.AlignCenter)
+        middle_layout.addLayout(vbox2)
 
-            vbox = QVBoxLayout()
-            vbox.addWidget(button, alignment=Qt.AlignCenter)
-            vbox.addWidget(label, alignment=Qt.AlignCenter)
-            middle_layout.addLayout(vbox)
+        # Button 3
+        self.facial_button = Services(".//img//facial.jpg", 150)
+        label3 = QLabel("Facial")
+        label3.setAlignment(Qt.AlignCenter)
+        label3.setStyleSheet("color: black; font-size: 16px;")
+        vbox3 = QVBoxLayout()
+        vbox3.addWidget(self.facial_button, alignment=Qt.AlignCenter)
+        vbox3.addWidget(label3, alignment=Qt.AlignCenter)
+        middle_layout.addLayout(vbox3)
+
+        # Button 4
+        self.eye_button = Services(".//img//eyelashes.jpg", 150)
+        label4 = QLabel("Eyelashes")
+        label4.setAlignment(Qt.AlignCenter)
+        label4.setStyleSheet("color: black; font-size: 16px;")
+        vbox4 = QVBoxLayout()
+        vbox4.addWidget(self.eye_button, alignment=Qt.AlignCenter)
+        vbox4.addWidget(label4, alignment=Qt.AlignCenter)
+        middle_layout.addLayout(vbox4)
 
         layout.addLayout(middle_layout)
         layout.addSpacing(50)  # Move elements up
@@ -114,11 +131,8 @@ class ServicesPage(QWidget):
 
         self.setLayout(layout)
 
-def run_application():
+if __name__ == '__main__':
     app = QApplication(sys.argv)
     window = ServicesPage()
     window.showMaximized()  # عرض النافذة بحجم الشاشة بالكامل
     sys.exit(app.exec_())
-
-if __name__ == '__main__':
-    run_application()

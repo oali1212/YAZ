@@ -7,10 +7,10 @@ from PyQt5.QtCore import *
 from pre_login import PreLogin
 from login_page import LoginWindow
 from home_page import HomePage
-from reports import Reports
-from customers import Customers
-from setting import Settings
-from services import Services
+from reports import ReportsPage
+from customers import CustomersPage
+from setting import SettingsPage
+from services import ServicesPage
 
 
 class Main():
@@ -77,22 +77,22 @@ class Main():
     
     def start_services_page(self):
         self.home_page.close()
-        self.services_page = Services()
+        self.services_page = ServicesPage()
         self.services_page.showMaximized()
 
     def start_reports_page(self):
         self.home_page.close()
-        self.reports_page = Reports()
+        self.reports_page = ReportsPage()
         self.reports_page.showMaximized() 
 
     def start_customers_page(self):
         self.home_page.close()
-        self.customers_page = Customers() 
+        self.customers_page = CustomersPage() 
         self.customers_page.showMaximized() 
 
     def start_settings_page(self):
         self.home_page.close()
-        self.settings_page = Settings() 
+        self.settings_page = SettingsPage() 
         self.settings_page.showMaximized() 
 
     def back_to_home(self):
