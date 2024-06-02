@@ -4,9 +4,9 @@ from PyQt5.QtGui import QFont, QIcon
 from PyQt5.QtCore import Qt
 
 class SettingsPage(QWidget):
-    def __init__(self):
+    def __init__(self,parent):
         super().__init__()
-
+        self.parent = parent
         self.setWindowTitle("SettingsPage")
         self.setGeometry(100, 100, 800, 600)  # Set window size
         self.setStyleSheet("background-color: #F5F5DC;")  # Background color
@@ -17,9 +17,9 @@ class SettingsPage(QWidget):
         # Top layout with back, minimize and close buttons
         top_layout = QHBoxLayout()
 
-        back_button = QPushButton("BACK")
-        back_button.setFixedSize(100, 40)
-        back_button.setStyleSheet("""
+        self.back_button = QPushButton("BACK")
+        self.back_button.setFixedSize(100, 40)
+        self.back_button.setStyleSheet("""
             QPushButton {
                 background-color: black; 
                 color: white; 
@@ -31,20 +31,10 @@ class SettingsPage(QWidget):
             }
         """)
 
-        minimize_button = QPushButton("_")
-        minimize_button.setFixedSize(40, 40)
-        minimize_button.setStyleSheet("background-color: black; color: white;")
-        minimize_button.clicked.connect(self.showMinimized)
 
-        close_button = QPushButton("X")
-        close_button.setFixedSize(40, 40)
-        close_button.setStyleSheet("background-color: black; color: white;")
-        close_button.clicked.connect(self.close)
 
-        top_layout.addWidget(back_button)
+        top_layout.addWidget(self.back_button)
         top_layout.addStretch()
-        top_layout.addWidget(minimize_button)
-        top_layout.addWidget(close_button)
 
         main_layout.addLayout(top_layout)
 
@@ -86,6 +76,12 @@ class SettingsPage(QWidget):
         main_layout.setAlignment(grid_layout, Qt.AlignCenter)
 
         self.setLayout(main_layout)
+
+        self.back_button.clicked.connect(self.back_to_home)
+
+    def back_to_home(self):
+        self.close()
+        self.parent.showMaximized()
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)

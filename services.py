@@ -43,9 +43,9 @@ class ServicesPage(QWidget):
         # Top layout with Back button, minimize, and close buttons
         top_layout = QHBoxLayout()
         
-        back_button = QPushButton("BACK")
-        back_button.setFixedSize(100, 40)
-        back_button.setStyleSheet("""
+        self.back_button = QPushButton("BACK")
+        self.back_button.setFixedSize(100, 40)
+        self.back_button.setStyleSheet("""
             QPushButton {
                 background-color: black; 
                 color: white; 
@@ -56,9 +56,9 @@ class ServicesPage(QWidget):
                 background-color: #333;
             }
         """)
-        back_button.clicked.connect(self.close)  # Close the window when the button is clicked
+        self.back_button.clicked.connect(self.close)  # Close the window when the button is clicked
 
-        top_layout.addWidget(back_button, alignment=Qt.AlignLeft)
+        top_layout.addWidget(self.back_button, alignment=Qt.AlignLeft)
         top_layout.addStretch()
 
         layout.addLayout(top_layout)
@@ -130,6 +130,13 @@ class ServicesPage(QWidget):
         layout.addLayout(bottom_layout)
 
         self.setLayout(layout)
+
+        self.back_button.clicked.connect(self.back_to_home)
+
+
+    def back_to_home(self):
+        self.close()
+        self.parent.showMaximized()
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)

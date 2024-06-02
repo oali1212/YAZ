@@ -3,6 +3,8 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 
+from home_page import HomePage
+
 class LoginWindow(QWidget):
     def __init__(self):
         super().__init__()
@@ -11,6 +13,9 @@ class LoginWindow(QWidget):
         self.setStyleSheet("background-color: #f5f5f5;")
 
         self.initUI()
+
+        self.login_button.clicked.connect(self.start_home_page) # moves from loign to home after checking user & pass
+
 
     def initUI(self):
         layout = QVBoxLayout()
@@ -72,6 +77,45 @@ class LoginWindow(QWidget):
         
     
         self.setLayout(layout)
+
+
+
+
+
+    def wrong_password(self):
+        msg = QMessageBox()
+        msg.setIcon(QMessageBox.Warning)
+        msg.setWindowTitle("Error")
+        msg.setText("Username and/or password value(s) can not be empty!")
+        msg.setStandardButtons(QMessageBox.Ok)
+        msg.exec_()
+
+
+    def start_home_page(self):
+        
+        if self.login_check() == True: 
+            self.close()
+            self.home_page = HomePage()
+            self.home_page.showMaximized()
+
+
+        if self.login_check() == -1: 
+            self.wrong_password()
+
+    # check login function
+    def login_check(self):
+        self.username = self.username_edit.text()
+        self.password = self.password_edit.text()
+
+        if self.username == '' or self.password == '': 
+            return -1
+        
+        else: 
+
+            return True
+           
+
+
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)

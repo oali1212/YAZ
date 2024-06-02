@@ -3,6 +3,9 @@ from PyQt5.QtWidgets import QApplication, QMainWindow, QLabel, QPushButton, QDes
 from PyQt5.QtGui import QPixmap, QIcon
 from PyQt5.QtCore import Qt, QSize  
 
+
+from login_page import LoginWindow
+
 class PreLogin(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -13,7 +16,7 @@ class PreLogin(QMainWindow):
 
         self.center_window() # جعل النافذة في وسط الشاشة
 
-        # إنشاء علامة لعرض الصورة
+        # إنشاء علامة لعرض   الصورة
         self.image_label = QLabel(self)
         pixmap = QPixmap("img/logo.png")  # تغيير "your_image.jpg" إلى مسار الصورة
 
@@ -30,7 +33,9 @@ class PreLogin(QMainWindow):
 
         # تحديد موقع وحجم العناصر
         self.set_layout()
-
+        
+        ##### bind 
+        self.login_button.clicked.connect(self.start_login)
     def center_window(self):
         # تحديد حجم النافذة ليكون بحجم شاشة الكمبيوتر
         screen = QDesktopWidget().screenGeometry()
@@ -51,9 +56,21 @@ class PreLogin(QMainWindow):
         button_height = 30
         self.login_button.setGeometry((window_width - button_width) // 2, (window_height - button_height) // 2 + 50, button_width, button_height)
 
+    # Transit from pre login to login 
 
-# if __name__ == "__main__":
-#     app = QApplication(sys.argv)
-#     login_page = PreLogin()
-#     login_page.show()
-#     sys.exit(app.exec_())
+    ###bind
+        
+    def start_login(self):
+
+        
+        self.login = LoginWindow() 
+        self.login.showMaximized()
+        
+
+
+
+if __name__ == "__main__":
+    app = QApplication(sys.argv)
+    login_page = PreLogin()
+    login_page.show()
+    sys.exit(app.exec_())

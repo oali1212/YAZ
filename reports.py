@@ -4,7 +4,8 @@ from PyQt5.QtGui import QPixmap, QPainter, QFont, QPainterPath
 from PyQt5.QtCore import Qt, QRectF
 
 class Reports(QPushButton):
-    def __init__(self):
+    def __init__(self,parent):
+        self.parent = parent
         super().__init__()
         self.label = ""  # Initialize label attribute with a default value
         self.setFixedSize(150, 150)  # Set a fixed size for each button
@@ -41,9 +42,10 @@ class Reports(QPushButton):
         painter.drawText(rect, Qt.AlignCenter, self.label)
 
 class ReportsPage(QWidget):
-    def __init__(self):
+    def __init__(self,parent):
+        
         super().__init__()
-
+        self.parent = parent
         self.setWindowTitle("Nail Selection")
         self.showMaximized()  # Show the window in full screen
 
@@ -52,9 +54,9 @@ class ReportsPage(QWidget):
         # Top layout with back, minimize, and close buttons
         top_layout = QHBoxLayout()
 
-        back_button = QPushButton("BACK")
-        back_button.setFixedSize(100, 40)
-        back_button.setStyleSheet("""
+        self.back_button = QPushButton("BACK")
+        self.back_button.setFixedSize(100, 40)
+        self.back_button.setStyleSheet("""
             QPushButton {
                 background-color: black; 
                 color: white; 
@@ -68,7 +70,7 @@ class ReportsPage(QWidget):
 
 
 
-        top_layout.addWidget(back_button)
+        top_layout.addWidget(self.back_button)
         top_layout.addStretch()
 
 
@@ -84,7 +86,7 @@ class ReportsPage(QWidget):
         positions = [(i, j) for i in range(3) for j in range(3)]
 
         for position, (label, image) in zip(positions, buttons):
-            button = Reports()
+            button = Reports(self)
             button.set_report(label, image)
             grid_layout.addWidget(button, *position)
         
@@ -96,6 +98,13 @@ class ReportsPage(QWidget):
         main_layout.addWidget(proceed_button, 0, Qt.AlignRight)
         
         self.setLayout(main_layout)
+        self.back_button.clicked.connect(self.back_to_home)
+
+
+    def back_to_home(self):
+        self.close()
+        self.parent.showMaximized()
+
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)

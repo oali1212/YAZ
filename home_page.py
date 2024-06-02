@@ -3,6 +3,13 @@ from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QPushButton, QVBoxLay
 from PyQt5.QtGui import QIcon, QPixmap, QFont
 from PyQt5.QtCore import Qt, QSize
 
+
+from reports import ReportsPage
+from customers import CustomersPage
+from setting import SettingsPage
+from services import ServicesPage
+
+
 class HomePage(QWidget):
     def __init__(self):
         super().__init__()
@@ -12,6 +19,13 @@ class HomePage(QWidget):
 
         self.initUI()
 
+    
+        # ### bindings 
+        self.services_button.clicked.connect(self.start_services_page)
+        self.reports_button.clicked.connect(self.start_reports_page)
+        self.customers_button.clicked.connect(self.start_customers_page)
+        self.settings_button.clicked.connect(self.start_settings_page)
+    
     def initUI(self):
         layout = QVBoxLayout()
 
@@ -103,6 +117,31 @@ class HomePage(QWidget):
         layout.addStretch()
 
         self.setLayout(layout)
+
+
+
+    
+    def start_services_page(self):
+        self.close()
+        self.services_page = ServicesPage()
+        self.services_page.showMaximized()
+
+    def start_reports_page(self):
+        self.close()
+        self.reports_page = ReportsPage(self)
+        self.reports_page.showMaximized() 
+
+    def start_customers_page(self):
+        self.close()
+        self.customers_page = CustomersPage(self) 
+        self.customers_page.showMaximized() 
+
+    def start_settings_page(self):
+        self.close()
+        self.settings_page = SettingsPage(self) 
+        self.settings_page.showMaximized() 
+
+
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
