@@ -1,9 +1,10 @@
 import sys
-from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QPushButton, QVBoxLayout, QHBoxLayout
+import os
+from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QVBoxLayout, QHBoxLayout, QPushButton
 from PyQt5.QtGui import QIcon, QPixmap, QPainter, QBrush, QPen
 from PyQt5.QtCore import Qt, QSize, QRectF
 
-class Services(QPushButton):
+class CircularButton(QPushButton):
     def __init__(self, image_path, size):
         super().__init__()
         self.size = size
@@ -13,6 +14,10 @@ class Services(QPushButton):
         self.setStyleSheet("border: none;")
 
     def create_circular_pixmap(self, image_path, size):
+        if not os.path.isfile(image_path):
+            print(f"Image not found: {image_path}")
+            return QPixmap()
+        
         pixmap = QPixmap(image_path).scaled(size, size, Qt.KeepAspectRatioByExpanding, Qt.SmoothTransformation)
         circular_pixmap = QPixmap(size, size)
         circular_pixmap.fill(Qt.transparent)
@@ -28,10 +33,22 @@ class Services(QPushButton):
 
         return circular_pixmap
 
-class ServicesPage(QWidget):
-    def __init__(self):
+class ServiceWidget(QWidget):
+    def __init__(self, image_path, text, size):
         super().__init__()
+        layout = QVBoxLayout()
+        self.button = CircularButton(image_path, size)
+        self.label = QLabel(text)
+        self.label.setAlignment(Qt.AlignCenter)
+        self.label.setStyleSheet("color: black; font-size: 16px;")
+        layout.addWidget(self.button, alignment=Qt.AlignCenter)
+        layout.addWidget(self.label, alignment=Qt.AlignCenter)
+        self.setLayout(layout)
 
+class ServicesPage(QWidget):
+    def __init__(self,parent):
+        super().__init__()
+        self.parent = parent
         self.setWindowTitle("Services Page")
         self.setStyleSheet("background-color: #f5f5f5;")
 
@@ -43,20 +60,19 @@ class ServicesPage(QWidget):
         # Top layout with Back button, minimize, and close buttons
         top_layout = QHBoxLayout()
         
-        self.back_button = QPushButton("BACK")
+        self.back_button = QPushButton("◀")
         self.back_button.setFixedSize(100, 40)
-        self.back_button.setStyleSheet("""
-            QPushButton {
-                background-color: black; 
-                color: white; 
-                font-size: 12px; 
-                font-weight: bold;
-            }
-            QPushButton::hover {
-                background-color: #333;
-            }
-        """)
-        self.back_button.clicked.connect(self.close)  # Close the window when the button is clicked
+        self.back_button.setStyleSheet("font-size: 35px;")       
+        # self.back_button.setStyleSheet("""
+        #     QPushButton {
+        #         background-color: white; 
+        #         color: white; 
+        #         font-size: 12px; 
+        #         font-weight: bold;
+        #     }
+  
+        # """)
+        self.back_button.clicked.connect(self.back_to_home)  # Close the window when the button is clicked
 
         top_layout.addWidget(self.back_button, alignment=Qt.AlignLeft)
         top_layout.addStretch()
@@ -74,46 +90,44 @@ class ServicesPage(QWidget):
         middle_layout = QHBoxLayout()
         middle_layout.setSpacing(20)  # Adjust spacing between buttons
 
-        # Button 1
-        self.nails_button = Services(".//img//nails.jpg", 150)
-        label1 = QLabel("Nails")
-        label1.setAlignment(Qt.AlignCenter)
-        label1.setStyleSheet("color: black; font-size: 16px;")
-        vbox1 = QVBoxLayout()
-        vbox1.addWidget(self.nails_button, alignment=Qt.AlignCenter)
-        vbox1.addWidget(label1, alignment=Qt.AlignCenter)
-        middle_layout.addLayout(vbox1)
-
-        # Button 2
-        self.pedicure_button = Services(".//img//pedicure.jpg", 150)
-        label2 = QLabel("Pedicure")
-        label2.setAlignment(Qt.AlignCenter)
-        label2.setStyleSheet("color: black; font-size: 16px;")
-        vbox2 = QVBoxLayout()
-        vbox2.addWidget(self.pedicure_button, alignment=Qt.AlignCenter)
-        vbox2.addWidget(label2, alignment=Qt.AlignCenter)
-        middle_layout.addLayout(vbox2)
-
-        # Button 3
-        self.facial_button = Services(".//img//facial.jpg", 150)
-        label3 = QLabel("Facial")
-        label3.setAlignment(Qt.AlignCenter)
-        label3.setStyleSheet("color: black; font-size: 16px;")
-        vbox3 = QVBoxLayout()
-        vbox3.addWidget(self.facial_button, alignment=Qt.AlignCenter)
-        vbox3.addWidget(label3, alignment=Qt.AlignCenter)
-        middle_layout.addLayout(vbox3)
-
-        # Button 4
-        self.eye_button = Services(".//img//eyelashes.jpg", 150)
-        label4 = QLabel("Eyelashes")
-        label4.setAlignment(Qt.AlignCenter)
-        label4.setStyleSheet("color: black; font-size: 16px;")
-        vbox4 = QVBoxLayout()
-        vbox4.addWidget(self.eye_button, alignment=Qt.AlignCenter)
-        vbox4.addWidget(label4, alignment=Qt.AlignCenter)
-        middle_layout.addLayout(vbox4)
-
+        self.style = """
+            QPushButton {
+                background-color: transparent;
+                border: none;
+            }
+            QPushButton:hover {
+                border-radius: 20px;
+                background-color: rgba(0, 0, 0, 50%);
+            }
+        """
+        # Service Widget 1
+        self.nails_widget = QPushButton()
+        nails_image_path = os.path.abspath(".//img//nails.jpg")
+        self.nails_widget = ServiceWidget(nails_image_path, "Nails", 150)
+        middle_layout.addWidget(self.nails_widget, alignment=Qt.AlignCenter)
+        self.nails_widget.setCursor(Qt.PointingHandCursor)
+        self.nails_widget.setStyleSheet(self.style)
+        # Service Widget 2
+        self.pedicure_widget = QPushButton()
+        pedicure_image_path = os.path.abspath(".//img//pedicure.jpg")
+        self.pedicure_widget = ServiceWidget(pedicure_image_path, "Pedicure", 150)
+        middle_layout.addWidget(self.pedicure_widget, alignment=Qt.AlignCenter)
+        self.pedicure_widget.setCursor(Qt.PointingHandCursor)
+        self.pedicure_widget.setStyleSheet(self.style)
+        # Service Widget 3
+        self.facial_widget= QPushButton()
+        facial_image_path = os.path.abspath(".//img//facial.jpg")
+        self.facial_widget = ServiceWidget(facial_image_path, "Facial", 150)
+        middle_layout.addWidget(self.facial_widget, alignment=Qt.AlignCenter)
+        self.facial_widget.setCursor(Qt.PointingHandCursor)
+        self.facial_widget.setStyleSheet(self.style)
+        # Service Widget 4
+        self.eye_widget = QPushButton()
+        eyelashes_image_path = os.path.abspath(".//img//eyelashes.jpg")
+        self.eye_widget = ServiceWidget(eyelashes_image_path, "Eyelashes", 150)
+        middle_layout.addWidget(self.eye_widget, alignment=Qt.AlignCenter)
+        self.eye_widget.setCursor(Qt.PointingHandCursor)
+        self.eye_widget.setStyleSheet(self.style)
         layout.addLayout(middle_layout)
         layout.addSpacing(50)  # Move elements up
 
@@ -131,7 +145,6 @@ class ServicesPage(QWidget):
 
         self.setLayout(layout)
 
-        self.back_button.clicked.connect(self.back_to_home)
 
 
     def back_to_home(self):
@@ -140,6 +153,6 @@ class ServicesPage(QWidget):
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-    window = ServicesPage()
+    window = ServicesPage(' ')
     window.showMaximized()  # عرض النافذة بحجم الشاشة بالكامل
     sys.exit(app.exec_())

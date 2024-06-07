@@ -18,9 +18,10 @@ class ServicesPage(QWidget):
         # Top layout with back, minimize and close buttons
         top_layout = QHBoxLayout()
 
-        back_button = QPushButton("BACK")
+        back_button = QPushButton("◀")
         back_button.setFixedSize(100, 40)
-        back_button.setStyleSheet("background-color: black; color: white;")
+        self.back_button.setStyleSheet("font-size: 35px;")       
+        # back_button.setStyleSheet("background-color: white; color: white;")
         back_button.clicked.connect(self.close)  # Close the window when the button is clicked
 
         minimize_button = QPushButton("_")

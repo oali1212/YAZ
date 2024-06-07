@@ -123,7 +123,7 @@ class HomePage(QWidget):
     
     def start_services_page(self):
         self.close()
-        self.services_page = ServicesPage()
+        self.services_page = ServicesPage(self)
         self.services_page.showMaximized()
 
     def start_reports_page(self):

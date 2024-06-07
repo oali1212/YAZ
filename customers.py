@@ -16,19 +16,9 @@ class CustomersPage(QWidget):
         # Top layout with back, minimize and close buttons
         top_layout = QHBoxLayout()
 
-        self.back_button = QPushButton("BACK")
+        self.back_button = QPushButton("◀")
         self.back_button.setFixedSize(100, 40)
-        self.back_button.setStyleSheet("""
-            QPushButton {
-                background-color: black; 
-                color: white; 
-                font-size: 12px; 
-                font-weight: bold;
-            }
-            QPushButton::hover {
-                background-color: #333;
-            }
-        """)        
+        self.back_button.setStyleSheet("font-size: 35px;")        
 
 
         top_layout.addWidget(self.back_button)

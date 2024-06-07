@@ -1,15 +1,23 @@
 import openpyxl
 import openpyxl.reader
 from openpyxl.utils import get_column_letter
-import datetime
 import os
-import configparser
+import sys
+from PyQt5.QtWidgets import *
+from configparser import ConfigParser
+from PyQt5.QtGui import QFont
+import math
+
+
 class YAZ:
+
+
     def __init__(self): 
         self.main_sheet_titles = ["Date", "Time", "Service","Sub Service", "Extras", "Price EGP", "Discount %", "Notes",  "Operator"]
         self.workers_sheet = ["worker_A", "Worker_B", "Worker_C"]
         self.services_list = ["Service_A", "Service_B", "Service_B"]
         self.main_sheet_name = "main_sheet.xlsx"
+
     def adjust_cell_width(self,sheet):
         
         # Autofit column width
@@ -92,31 +100,84 @@ class YAZ:
         else:
             self.add_to_main_sheet([""]*valid_columns,index = 3)
 
-    def create_performance_sheet():
-        pass
-    def add_to_performance_sheet():
-        pass
-    def remove_from_performance_sheet():
-        pass
+
+    def create_price_table(self, ini_file, section):
+        config = ConfigParser()
+        config.read(ini_file)
+        
+        if section not in config:
+            print(f"Section {section} not found in the INI file.")
+            return None
+        
+        # Assuming services are stored in a "key = value" format under section
+        services = config[section]
+        
+        # Create Table
+        tableWidget = QTableWidget()
+        
+        # Set table dimensions
+        tableWidget.setRowCount(len(services))
+        tableWidget.setColumnCount(6)
+        tableWidget.setHorizontalHeaderLabels(['Service', 'Price (EGP)', 'Price -30%', 'Price -40%', "Edit", "Remove"])
+        tableWidget.horizontalHeader().setStyleSheet("font-weight: bold; font-size:25px; background-color: lightgrey;")
+        # Hide the vertical header (numbers column)
+        tableWidget.verticalHeader().setVisible(False)
+
+        font = QFont()
+        font.setPointSize(25)
+        for i, (service, price) in enumerate(services.items()):
+            price = float(price)
+            price_discounted_30 = math.ceil( price * 0.7 )
+            price_discounted_40 = math.ceil( price * 0.6 )
+            
+            service = service.replace("__", " + ")
+            service = service.replace("_", " ")
+            service = service.upper()
+
+            self.remove = QPushButton("🗑")
+            self.remove.setStyleSheet("font-size:25px;")
+            self.edit = QPushButton("🖋️") 
+            self.edit.setStyleSheet("font-size: 25px;")  
+
+            tableWidget.setItem(i, 0, QTableWidgetItem(service))
+            price = str(price)
+            price_discounted_30 = str(price_discounted_30)
+            price_discounted_40 = str(price_discounted_40)
+            tableWidget.setItem(i, 1, QTableWidgetItem(price))
+            tableWidget.setItem(i, 2, QTableWidgetItem(price_discounted_30))
+            tableWidget.setItem(i, 3, QTableWidgetItem(price_discounted_40))
+            tableWidget.setCellWidget(i,4,self.edit)
+            tableWidget.setCellWidget(i,5,self.remove)
+
+
+        tableWidget.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
+        tableWidget.setStyleSheet("background-color: white;")
+        # Enable resizing of columns by mouse
+        tableWidget.horizontalHeader().setSectionResizeMode(QHeaderView.Interactive)
+        # Set the horizontal header resize mode to Stretch
+        tableWidget.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        # Set the vertical header resize mode to Stretch
+        tableWidget.verticalHeader().setSectionResizeMode(QHeaderView.Stretch)
+
     
 
 
-    def add_worker():
-        pass
+        tableWidget.setFixedWidth(1100)
 
-    def remove_worker():
-        pass
-    
-    def add_service():
-        pass
-    
-    def remove_service():
-        pass
+        return tableWidget
 
-yaz = YAZ()
-yaz.create_main_sheet(yaz.main_sheet_titles)
-yaz.add_to_main_sheet([1,2,3,4,5,6,1,8,9])
-yaz.add_to_main_sheet([1,1,3,4,5,1,7,1,9])
-yaz.add_to_main_sheet([1,2,1,4,1,6,7,8,9])
-yaz.add_to_main_sheet([1,2,3,'safagvdsavgdasvgdasf',5,6,7,8,9])
-yaz.remove_from_main_sheet(12)
+if __name__ == '__main__':
+    app = QApplication(sys.argv)
+    ini_file = 'settings.ini'  # replace with the path to your INI file
+    section = 'nails'
+    yaz = YAZ()
+    table = yaz.create_price_table(ini_file, section)
+    if table:
+        # If you want to test showing the table, uncomment the following lines:
+        widget = QWidget()
+        layout = QVBoxLayout()
+        layout.addWidget(table)
+        widget.setLayout(layout)
+        widget.show()
+        sys.exit(app.exec_())
+        

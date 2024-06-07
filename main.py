@@ -18,7 +18,7 @@ class Main():
         self.pre_login = PreLogin()
         self.pre_login.show()
 
-        self.pre_login.login_button.clicked.connect(self.start_login) # moves from pre login to login WITHOUT CONDITIONS
+        # self.pre_login.login_button.clicked.connect(self.start_login) # moves from pre login to login WITHOUT CONDITIONS
 
 
 
@@ -31,6 +31,7 @@ class Main():
 
 
     def back_to_home(self):
+        self.close()
         self.home_page.showMaximized()
 
     

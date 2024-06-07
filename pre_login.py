@@ -62,7 +62,7 @@ class PreLogin(QMainWindow):
         
     def start_login(self):
 
-        
+        self.close()
         self.login = LoginWindow() 
         self.login.showMaximized()
         
