@@ -41,6 +41,7 @@ class NailSelectionWindow(QWidget):
 
         self.setLayout(main_layout)
         self.showMaximized()
+        
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     window = NailSelectionWindow()

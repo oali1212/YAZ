@@ -4,9 +4,11 @@ from openpyxl.utils import get_column_letter
 import os
 import sys
 from PyQt5.QtWidgets import *
+from PyQt5.QtCore import *
 from configparser import ConfigParser
 from PyQt5.QtGui import QFont
 import math
+
 
 
 class YAZ:
@@ -117,8 +119,8 @@ class YAZ:
         
         # Set table dimensions
         tableWidget.setRowCount(len(services))
-        tableWidget.setColumnCount(6)
-        tableWidget.setHorizontalHeaderLabels(['Service', 'Price (EGP)', 'Price -30%', 'Price -40%', "Edit", "Remove"])
+        tableWidget.setColumnCount(5)
+        tableWidget.setHorizontalHeaderLabels(['Service', 'Price (EGP)', 'Price -30%', 'Price -40%', "Remove"])
         tableWidget.horizontalHeader().setStyleSheet("font-weight: bold; font-size:25px; background-color: lightgrey;")
         # Hide the vertical header (numbers column)
         tableWidget.verticalHeader().setVisible(False)
@@ -136,8 +138,7 @@ class YAZ:
 
             self.remove = QPushButton("🗑")
             self.remove.setStyleSheet("font-size:25px;")
-            self.edit = QPushButton("🖋️") 
-            self.edit.setStyleSheet("font-size: 25px;")  
+
 
             tableWidget.setItem(i, 0, QTableWidgetItem(service))
             price = str(price)
@@ -146,8 +147,7 @@ class YAZ:
             tableWidget.setItem(i, 1, QTableWidgetItem(price))
             tableWidget.setItem(i, 2, QTableWidgetItem(price_discounted_30))
             tableWidget.setItem(i, 3, QTableWidgetItem(price_discounted_40))
-            tableWidget.setCellWidget(i,4,self.edit)
-            tableWidget.setCellWidget(i,5,self.remove)
+            tableWidget.setCellWidget(i,4,self.remove)
 
 
         tableWidget.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
@@ -163,21 +163,49 @@ class YAZ:
 
 
         tableWidget.setFixedWidth(1100)
-
+        self.disable_modification(tableWidget)
         return tableWidget
 
-if __name__ == '__main__':
-    app = QApplication(sys.argv)
-    ini_file = 'settings.ini'  # replace with the path to your INI file
-    section = 'nails'
-    yaz = YAZ()
-    table = yaz.create_price_table(ini_file, section)
-    if table:
-        # If you want to test showing the table, uncomment the following lines:
-        widget = QWidget()
-        layout = QVBoxLayout()
-        layout.addWidget(table)
-        widget.setLayout(layout)
-        widget.show()
-        sys.exit(app.exec_())
+    def disable_modification(self, table):
+        for row in range(table.rowCount()):
+            for col in range(table.columnCount()):
+                item = table.item(row, col)
+                if item:
+                    item.setFlags(item.flags() & ~Qt.ItemIsEditable)
+
+
+    def add_service(self, ini_file, section, name, price):
+
+        config = ConfigParser()
+        config.read(ini_file)
         
+        if not config.has_section(section):
+            config.add_section(section)
+        
+        if name[-1] == "_":
+            name = name[:-2]
+
+        config.set(section, name, str(price))
+        
+        with open(ini_file, 'w') as config_file:
+            config.write(config_file)
+
+    def delete_service(self, ini_file, section, name):
+        config = ConfigParser()
+        config.read(ini_file)
+        
+        if config.has_section(section) and config.has_option(section, name):
+            config.remove_option(section, name)
+            
+            # If the section is empty after removing the option, also remove the section
+            if not config.options(section):
+                config.remove_section(section)
+            
+            else: 
+               print("error1")
+
+            with open(ini_file, 'w') as config_file:
+                config.write(config_file)
+
+        else: 
+            print("error2")
