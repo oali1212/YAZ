@@ -190,22 +190,43 @@ class YAZ:
         with open(ini_file, 'w') as config_file:
             config.write(config_file)
 
-    def delete_service(self, ini_file, section, name):
+
+
+
+    def delete_service(self, file_path, section, index):
+        index = int(index)
         config = ConfigParser()
-        config.read(ini_file)
+        config.read(file_path)
+
+        if section not in config:
+            raise ValueError(f"Section '{section}' not found in the INI file.")
+
+        options = list(config[section])
+        if index < 1 or index > len(options):
+            raise ValueError("Invalid index.")
+
+        option_to_delete = options[index - 1]  # Adjust index to 0-based index
+        del config[section][option_to_delete]
+
+        with open(file_path, 'w') as configfile:
+            config.write(configfile)
+
+    def save_services(self, file_path, section, prices_list: list):
+        config = ConfigParser()
+        config.read(file_path)
+
+        if section not in config:
+            raise ValueError(f"Section '{section}' not found in the INI file.")
         
-        if config.has_section(section) and config.has_option(section, name):
-            config.remove_option(section, name)
-            
-            # If the section is empty after removing the option, also remove the section
-            if not config.options(section):
-                config.remove_section(section)
-            
-            else: 
-               print("error1")
-
-            with open(ini_file, 'w') as config_file:
-                config.write(config_file)
-
-        else: 
-            print("error2")
+        options = list(config[section])
+        
+        if len(options) != len(prices_list):
+            raise ValueError("Length of prices list does not match the number of options in the section.")
+        
+        for index, price in enumerate(prices_list):
+            option_to_edit = options[index]  # Zero-based index
+            config[section][option_to_edit] = str(price)
+        
+        # Write changes back to the file
+        with open(file_path, 'w') as configfile:
+            config.write(configfile)

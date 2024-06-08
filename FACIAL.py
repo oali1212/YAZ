@@ -1,16 +1,17 @@
 import sys
 from PyQt5.QtWidgets import *
+from PyQt5 import *
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from configparser import ConfigParser
 from backend_functions import YAZ
 from PyQt5.QtGui import *
+import time
 
-
-class NailSelectionWindow(QWidget):
-    def __init__(self):
+class facialPage(QWidget):
+    def __init__(self,parent):
         super().__init__()
-
+        self.parent = parent
         self.setWindowTitle("Facial Selection")
         
         self.setStyleSheet("background-color: #F5F5DC;")  # Background color
@@ -21,12 +22,16 @@ class NailSelectionWindow(QWidget):
         
         label = QLabel("Facial Services")
         label.setStyleSheet("font-size: 30px; font-weight: 900; font-family: Comic Sans MS;")
-          
+
+        self.back_button = QPushButton("◀")
+        self.back_button.setFixedSize(100, 40)
+        self.back_button.setStyleSheet("font-size: 35px;")      
+
+
+        self.main_layout.addWidget(self.back_button)
         self.main_layout.addWidget(label)
         self.main_layout.addWidget(QLabel())
-        back_button = QPushButton("◀")
-        back_button.setFixedSize(100, 40)
-        back_button.setStyleSheet("font-size: 35px;")       
+ 
 
         self.add_button = QPushButton("New Service ➕")
         self.add_button.setFixedSize(200, 40)
@@ -40,7 +45,7 @@ class NailSelectionWindow(QWidget):
         self.save_button = QPushButton("Save ✅")
         self.save_button.setFixedSize(200, 40)
         self.save_button.setStyleSheet(" color: black; font-size: 25px; ")
-        
+        self.save_button.setDisabled(True)
 
         yaz = YAZ()
         ini_file = 'settings.ini'  # Replace with your actual ini file path
@@ -63,6 +68,13 @@ class NailSelectionWindow(QWidget):
         self.showMaximized()
 
         self.add_button.clicked.connect(self.show_add_service_dialog)
+        self.back_button.clicked.connect(self.back_to_home)
+        self.edit_button.clicked.connect(self.edit_service)
+        self.save_button.clicked.connect(self.save_service)
+
+        self.add_table_bindings()
+
+    def add_table_bindings(self):
 
         for row in range(self.table.rowCount() ): 
 
@@ -84,27 +96,104 @@ class NailSelectionWindow(QWidget):
                 self.table.setParent(None)
                 self.table = self.new_table
                 self.table_layout.addWidget(self.table)
-
+                self.add_table_bindings()
    
     def delete_selected(self,index):
- 
-        name = self.table.item(int(index), 0).text()
-        name = name.lower()
-        name = name.replace("&", "__")
-        name = name.replace(" ", "_")
-
-        yaz = YAZ()
-        yaz.delete_service(self.settings_file,self.section,name)
         
-        print(f"i am trying to delete {name}")
-        self.new_table = yaz.create_price_table(self.settings_file, self.section)
-        if self.new_table: 
+        name = self.table.item(int(index), 0).text()
+        msg_box = QMessageBox()
+        msg_box.setIcon(QMessageBox.Warning)
+        msg_box.setWindowTitle("Confirmation")
+        msg_box.setText(f"Are you sure you want to remove {name}?")
+        msg_box.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
+        msg_box.setDefaultButton(QMessageBox.No)
+    
+        response = msg_box.exec_()       
+        msg_box = QMessageBox()
+
+        if response == QMessageBox.Yes:
+            yaz = YAZ()
+            yaz.delete_service(self.settings_file,self.section,index+1)
             
-            self.table.setParent(None)
-            self.table = self.new_table
-            self.table_layout.addWidget(self.table)        
+            print(f"i am trying to delete {name}")
+            self.new_table = yaz.create_price_table(self.settings_file, self.section)
+            if self.new_table: 
+                
+                self.table.setParent(None)
+                self.table = self.new_table
+                self.table_layout.addWidget(self.table)        
+                self.add_table_bindings()
 
 
+    def back_to_home(self):
+        self.close()
+        self.parent.showMaximized()
+
+
+    def edit_service(self):
+        
+    
+        for row in range(self.table.rowCount()):  # Start from row 1
+            self.table.item(row, 1).setBackground(QtGui.QColor("grey"))
+
+            QCoreApplication.processEvents()
+
+            time.sleep(0.02)
+            QCoreApplication.processEvents()
+
+            self.table.item(row, 1).setBackground(QtGui.QColor("white"))
+
+        for row in range(self.table.rowCount()-1,-1,-1):  # Start from row 1
+            self.table.item(row, 1).setBackground(QtGui.QColor("grey"))
+
+            QCoreApplication.processEvents()
+
+            time.sleep(0.02)
+            QCoreApplication.processEvents()
+
+            self.table.item(row, 1).setBackground(QtGui.QColor("white"))  
+
+        for row in range(self.table.rowCount()):  # Start from row 1
+            self.table.item(row, 1).setBackground(QtGui.QColor("grey"))
+
+            item = self.table.item(row, 1)
+            item.setFlags(item.flags() | Qt.ItemIsEditable)
+
+
+        error_dialog = QMessageBox(self)
+        # error_dialog.setIcon(QMessageBox.warning)
+        error_dialog.setWindowTitle("Edit")
+        error_dialog.setText("Please edit price(s) in the highlighted column and click Save after editing")
+        error_dialog.exec_()
+
+        self.back_button.setDisabled(True)
+        self.edit_button.setDisabled(True)
+        self.save_button.setDisabled(False)
+
+    def save_service(self):
+        self.back_button.setDisabled(False)
+        self.edit_button.setDisabled(False)
+        self.save_button.setDisabled(True)
+
+        prices_list = [] 
+
+        for row in range(self.table.rowCount()):
+            item = self.table.item(row,  1)
+            item.setBackground( QtGui.QColor("white") )
+            prices_list.append(item.text())
+            item.setFlags(item.flags() & ~Qt.ItemIsEditable)
+
+
+
+        yaz = YAZ() 
+        yaz.save_services(self.settings_file,self.section,prices_list)
+        self.add_table_bindings()
+
+        error_dialog = QMessageBox(self)
+        # error_dialog.setIcon(QMessageBox.warning)
+        error_dialog.setWindowTitle("Saving")
+        error_dialog.setText("New prices saved successfully")
+        error_dialog.exec_()
 
 class AddServiceDialog(QDialog):
     def __init__(self, parent=None):
@@ -153,8 +242,10 @@ class AddServiceDialog(QDialog):
         error_dialog.exec_()
 
 
+
+  
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-    window = NailSelectionWindow()
+    window = facialPage('')
     window.show()
     sys.exit(app.exec_())
