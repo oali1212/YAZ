@@ -72,7 +72,7 @@ class HomePage(QWidget):
         self.reports_button.setText("Reports")
         self.reports_button.setFont(QFont("Arial", 15, QFont.Bold))
         self.reports_button.setCursor(Qt.PointingHandCursor)
-        grid_layout.addWidget(self.reports_button, 0, 1)
+        grid_layout.addWidget(self.reports_button, 0, 2)
 
         # Button 3
         self.customers_button = QPushButton()
@@ -110,7 +110,27 @@ class HomePage(QWidget):
         self.settings_button.setText("Settings")
         self.settings_button.setFont(QFont("Arial", 15, QFont.Bold))
         self.settings_button.setCursor(Qt.PointingHandCursor)
-        grid_layout.addWidget(self.settings_button, 1, 1)
+        grid_layout.addWidget(self.settings_button, 1, 2)
+
+        # button 5
+  
+        self.bill_button = QPushButton()
+        self.bill_button.setIcon(QIcon(".//img//cart.jpeg"))
+        self.bill_button.setIconSize(QSize(400, 150))
+        self.bill_button.setStyleSheet("""
+            QPushButton {
+                background-color: transparent;
+                border: none;
+            }
+            QPushButton:hover {
+                border-radius: 20px;
+                background-color: rgba(0, 0, 0, 50%);
+            }
+        """)
+        self.bill_button.setText("New Bill")
+        self.bill_button.setFont(QFont("Arial", 15, QFont.Bold))
+        self.bill_button.setCursor(Qt.PointingHandCursor)
+        grid_layout.addWidget(self.bill_button, 2, 1)       
 
         layout.addStretch()
         layout.addLayout(grid_layout)

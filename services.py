@@ -154,18 +154,18 @@ class ServicesPage(QWidget):
     # Define the functions that handle the button clicks
     def go_to_nails(self):
         self.close()
-        self.facial = nailsPage(self) 
-        self.facial.showMaximized()
+        self.nails = nailsPage(self) 
+        self.nails.showMaximized()
 
     def go_to_pedicure(self):
         self.close()
-        self.facial = pedicurePage(self) 
-        self.facial.showMaximized()
+        self.pedicure = pedicurePage(self) 
+        self.pedicure.showMaximized()
 
     def go_to_eyelashes(self):
         self.close()
-        self.facial = eyelashesPage(self) 
-        self.facial.showMaximized()
+        self.eye = eyelashesPage(self) 
+        self.eye.showMaximized()
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
