@@ -133,7 +133,7 @@ class NewBillPage(QWidget):
         self.bill_table = QTableWidget()
         self.bill_table.setRowCount(0)
         self.bill_table.setColumnCount(5)
-        self.bill_table.setHorizontalHeaderLabels(['Service', 'Price', 'Discount %', 'Total', 'Delete'])
+        self.bill_table.setHorizontalHeaderLabels(['Service', 'Price', 'Discount %', 'Total', ''])
         self.bill_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.bill_table.setGridStyle(Qt.SolidLine)
         self.right_layout.addWidget(self.bill_table)
@@ -147,12 +147,13 @@ class NewBillPage(QWidget):
         self.total_price_label.setStyleSheet("font-size: 20px; font-weight: bold;")
         self.right_layout.addWidget(self.total_price_label, alignment=Qt.AlignRight)
 
-        save_button = QPushButton("Save")
-        save_button.setFixedSize(200, 40)
-        save_button.setStyleSheet("background-color: lightgrey; font-size: 20px; font-weight: bold;")
-        self.right_layout.addWidget(save_button, alignment=Qt.AlignCenter)
-
+        self.save_button = QPushButton("Save")
+        self.save_button.setFixedSize(200, 40)
+        self.save_button.setStyleSheet("background-color: lightgrey; font-size: 20px; font-weight: bold;")
+        self.right_layout.addWidget(self.save_button, alignment=Qt.AlignCenter)
+        self.save_button.clicked.connect(self.save_bill)
         # Combine Layouts
+
         container_layout = QHBoxLayout()
         container_layout.addLayout(self.main_layout)
         container_layout.addLayout(self.right_layout)
@@ -253,6 +254,25 @@ class NewBillPage(QWidget):
         self.parent.showMaximized()
 
 
+
+    def save_bill(self): 
+        if self.total_price_label.text() ==  "Total Price: 0 EGP" or self.customer_name_input.currentText() == "**Please Select a Customer**":
+            warning_msg = QMessageBox()
+            warning_msg.setIcon(QMessageBox.Warning)
+            warning_msg.setText("Please select customer and/or add at least one product")
+            warning_msg.setWindowTitle("Warning")
+            warning_msg.exec_()
+
+        else:
+            yaz = YAZ() 
+            name = self.customer_name_input.currentText() 
+            name = name.replace(" ", "_")
+            yaz.save_table_to_excel(self.bill_table,name,)
+
+
+
+
+
 class DiscountDialog(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -271,7 +291,7 @@ class DiscountDialog(QDialog):
     def get_discount(self):
         return self.combobox.currentText()  
 
-
+    
 
 
 if __name__ == '__main__':

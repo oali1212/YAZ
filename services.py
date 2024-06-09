@@ -20,7 +20,7 @@ class CircularButton(QPushButton):
 
     def create_circular_pixmap(self, image_path, size):
         if not os.path.isfile(image_path):
-            print(f"Image not found: {image_path}")
+            #print(f"Image not found: {image_path}")
             return QPixmap()
         
         pixmap = QPixmap(image_path).scaled(size, size, Qt.KeepAspectRatioByExpanding, Qt.SmoothTransformation)

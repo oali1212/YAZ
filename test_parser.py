@@ -28,7 +28,7 @@ class PriceTableWidget(QWidget):
         config.read(self.ini_file)
         
         if self.section not in config:
-            print(f"Section {self.section} not found in the INI file.")
+            #print(f"Section {self.section} not found in the INI file.")
             return
         
         # Assuming services are stored in a "key = value" format under section

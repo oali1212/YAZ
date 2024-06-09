@@ -8,18 +8,18 @@ from PyQt5.QtCore import *
 from configparser import ConfigParser
 from PyQt5.QtGui import QFont
 import math
-
+from datetime import datetime
+import pandas as pd
 
 
 class YAZ:
 
 
     def __init__(self): 
-        self.main_sheet_titles = ["Date", "Time", "Service","Sub Service", "Extras", "Price EGP", "Discount %", "Notes",  "Operator"]
-        self.workers_sheet = ["worker_A", "Worker_B", "Worker_C"]
-        self.services_list = ["Service_A", "Service_B", "Service_B"]
-        self.main_sheet_name = "main_sheet.xlsx"
+        self.main_sheet_titles = ["Date", "Time", "Transaction Type", "Transaction Description","Amount (EGP)",  "Notes",  "Logged by:"]
 
+        self.main_sheet_directory = "Main Report and Performance"
+        self.main_sheet_name = "main_sheet.xlsx"
     def adjust_cell_width(self,sheet):
         
         # Autofit column width
@@ -37,58 +37,57 @@ class YAZ:
 
         
     def create_main_sheet(self, column_names):
+        excel_path = os.path.join(self.main_sheet_directory, self.main_sheet_name)
         workbook = openpyxl.Workbook()
         sheet = workbook.active
 
-        # Write column headers
         for idx, column_name in enumerate(column_names, start=1):
             cell = sheet.cell(row=1, column=idx, value=column_name)
             cell.font = cell.font.copy(bold=True)
-            cell.fill = openpyxl.styles.fills.PatternFill(start_color="DDDDDD", end_color="DDDDDD", fill_type="solid")
+            cell.fill = openpyxl.styles.fills.PatternFill(start_color="DDDDDD", end_color="DDDDDD",
+                                                           fill_type="solid")
 
-        # Save the file
         self.adjust_cell_width(sheet)
         workbook.save(self.main_sheet_name)
 
 
-    def add_to_main_sheet(self, entry, index = None):
+    def add_to_main_sheet(self, entry, index=None):
+        excel_path = os.path.join(self.main_sheet_directory, self.main_sheet_name)
 
+        if not os.path.exists(excel_path):
+            self.create_main_sheet(self.main_sheet_titles)
 
-        if not self.main_sheet_name in os.listdir(): 
-            print("Main sheet not found!")
-            return False
-        
-        workbook = openpyxl.load_workbook(filename=self.main_sheet_name)
+        workbook = openpyxl.load_workbook(filename=excel_path)
         sheet = workbook.active
         valid_columns = sheet.max_column
         valid_rows = sheet.max_row
 
-
-        if valid_columns == 0 or valid_rows == 0 : 
-            print(f"Main sheet has no data! \nrows = {valid_rows}, columns = {valid_columns}")
+        if valid_columns == 0 or valid_rows == 0:
+            print(f"Main sheet has no data! Rows: {valid_rows}, Columns: {valid_columns}")
             return False
-  
+
         elif len(entry) != valid_columns:
-            print(f"Entry length must be equal to the number of titles! \nentry length = {len(entry)}, titles = {valid_columns}")
+            print(f"Entry length must be equal to the number of titles! Entry length: {len(entry)}, Titles: {valid_columns}")
             return False
 
         else:
+            if not index:
+                row = valid_rows + 1
+            else:
+                row = index
+
             for col, value in enumerate(entry, start=1):
-                if not index: 
-                    cell = sheet.cell(row=valid_rows+1, column=col, value=value)
-                    print(f"putting {value} in row = {valid_rows+1} and column = {col}")
-                else:
-                    cell = sheet.cell(row=index, column = col, value = value)
-                    print(f"putting {value} in row = {index} and column = {col}")
-                
+                sheet.cell(row=row, column=col, value=value)
 
             self.adjust_cell_width(sheet)
-            workbook.save(self.main_sheet_name)
+            workbook.save(excel_path)
+            print("Entry appended successfully.")
+            return True
 
 
     def remove_from_main_sheet(self, index):
         if not self.main_sheet_name in os.listdir(): 
-            print("Main sheet not found!")
+            #print("Main sheet not found!")
             return False
         
         workbook = openpyxl.load_workbook(filename=self.main_sheet_name)
@@ -97,7 +96,7 @@ class YAZ:
         valid_rows = sheet.max_row
 
         if index > valid_rows:
-            print("The row requested to delete does not exist!")
+            #print("The row requested to delete does not exist!")
             return False
         else:
             self.add_to_main_sheet([""]*valid_columns,index = 3)
@@ -108,7 +107,7 @@ class YAZ:
         config.read(ini_file)
         
         if section not in config:
-            print(f"Section {section} not found in the INI file.")
+            #print(f"Section {section} not found in the INI file.")
             return None
         
         # Assuming services are stored in a "key = value" format under section
@@ -176,7 +175,7 @@ class YAZ:
         config.read(ini_file)
 
         # Set table properties
-        tableWidget.setColumnCount(6)
+        tableWidget.setColumnCount(7)
         tableWidget.horizontalHeader().setFont(QFont('Arial', 12, QFont.Bold))
         tableWidget.horizontalHeader().setStyleSheet("background-color: lightgrey; font-weight: bold; font-size: 12px;")
         tableWidget.verticalHeader().setVisible(False)
@@ -200,6 +199,33 @@ class YAZ:
         tableWidget.verticalHeader().setSectionResizeMode(QHeaderView.Stretch)
 
         return tableWidget
+
+    def update_ini_from_table(self,tableWidget, ini_file):
+        # Initialize ConfigParser
+        config = ConfigParser()
+        
+        # Iterate over each row in the table
+        for row in range(tableWidget.rowCount()):
+            # Get the section name (first column)
+            if tableWidget.item(row,0):
+                section = tableWidget.item(row, 0).text()
+                if section != '' and section != ' ':
+                    config[section] = {}
+
+                    # Populate the rest of the options
+                    config[section]['Index'] = tableWidget.item(row, 1).text()
+                    config[section]['date_registered'] = tableWidget.item(row, 2).text()
+                    config[section]['phone_number'] = tableWidget.item(row, 3).text()
+                    config[section]['total_paid'] = tableWidget.item(row, 4).text()
+                    config[section]['email'] = tableWidget.item(row, 5).text()
+                    config[section]['heard_about_us'] = tableWidget.item(row, 6).text()
+                
+                    #print(config.sections())
+            # Write the updated data back to the INI file
+            with open(ini_file, 'w') as configfile:
+                config.write(configfile)
+                #print(f"INI file '{ini_file}' updated successfully.")
+
 
 
     def disable_modification(self, table):
@@ -266,3 +292,38 @@ class YAZ:
         # Write changes back to the file
         with open(file_path, 'w') as configfile:
             config.write(configfile)
+
+
+
+    def save_table_to_excel(self, table: QTableWidget, name: str):
+        # Convert QTableWidget to pandas DataFrame
+        data = []
+        for row in range(table.rowCount()):
+            row_data = []
+            for column in range(table.columnCount()):
+                item = table.item(row, column)
+                row_data.append(item.text() if item is not None else '')
+            data.append(row_data)
+        
+        headers = [table.horizontalHeaderItem(i).text() for i in range(table.columnCount())]
+        df = pd.DataFrame(data, columns=headers)
+        
+        # Check if folder for Customers Bills exists, if not create it
+        customers_bills_folder = "Customers Bills"
+        if not os.path.exists(customers_bills_folder):
+            os.makedirs(customers_bills_folder)
+        
+        # Check if folder for the customer exists, if not create it
+        customer_folder = os.path.join(customers_bills_folder, name)
+        if not os.path.exists(customer_folder):
+            os.makedirs(customer_folder)
+        
+        # Save with a timestamped name
+        timestamp = datetime.now().strftime("%d_%m_%y_%H_%M")
+        file_name = f"{name}_{timestamp}.xlsx"
+        file_path = os.path.join(customer_folder, file_name)
+        df.to_excel(file_path, index=False)
+        print(f"File saved as {file_path}")
+
+yaz = YAZ() 
+yaz.add_to_main_sheet("main_sheet",["01/01/2022","22:22", "IN", "Mohamed Ahmed's bill", "", "moh"])

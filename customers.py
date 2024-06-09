@@ -27,14 +27,13 @@ class CustomersPage(QWidget):
         self.back_button.setStyleSheet("font-size: 14px;")        
 
         self.add_button = QPushButton("Add Client")
-        self.remove_button = QPushButton("Remove Client")
-        self.edit_button = QPushButton("Edit Client")
+        self.save_button = QPushButton("Save All")
 
         top_layout.addWidget(self.back_button)
         top_layout.addStretch()
         top_layout.addWidget(self.add_button)
-        top_layout.addWidget(self.remove_button)
-        top_layout.addWidget(self.edit_button)
+        top_layout.addWidget(self.save_button)
+
   
         main_layout.addLayout(top_layout)
 
@@ -56,8 +55,8 @@ class CustomersPage(QWidget):
 
         self.back_button.clicked.connect(self.back_to_home)
         self.add_button.clicked.connect(self.add_client)
-        self.remove_button.clicked.connect(self.remove_client)
-        self.edit_button.clicked.connect(self.edit_client)
+        self.save_button.clicked.connect(self.save_all)
+
 
 
 
@@ -66,16 +65,19 @@ class CustomersPage(QWidget):
         self.parent.showMaximized()
 
     def add_client(self):
+        row_position = self.table.rowCount()
         # Add your code to handle adding a new client
-        pass
+        self.table.insertRow(self.table.rowCount())
+        # Fill the new row with empty strings
+        for column in range(self.table.columnCount()):
+            self.table.setItem(row_position, column, QTableWidgetItem(""))
 
-    def remove_client(self):
-        # Add your code to handle removing a client
-        pass
 
-    def edit_client(self):
-        # Add your code to handle editing a client
-        pass
+    def save_all(self):
+        yaz = YAZ() 
+        yaz.update_ini_from_table(self.table, self.clients_file)
+        QMessageBox.information(None, "Success", "Customers saved successfully")
+
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)

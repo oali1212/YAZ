@@ -117,7 +117,7 @@ class nailsPage(QWidget):
             yaz = YAZ()
             yaz.delete_service(self.settings_file,self.section,index+1)
             
-            print(f"i am trying to delete {name}")
+            #print(f"i am trying to delete {name}")
             self.new_table = yaz.create_price_table(self.settings_file, self.section)
             if self.new_table: 
                 
