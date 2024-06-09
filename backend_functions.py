@@ -165,6 +165,42 @@ class YAZ:
         tableWidget.setFixedWidth(1100)
         self.disable_modification(tableWidget)
         return tableWidget
+    
+
+    def create_customers_table(self, ini_file):
+        tableWidget = QTableWidget()
+        tableWidget.setStyleSheet("background-color: white;")
+
+        # Load data from ini file
+        config = ConfigParser()
+        config.read(ini_file)
+
+        # Set table properties
+        tableWidget.setColumnCount(6)
+        tableWidget.horizontalHeader().setFont(QFont('Arial', 12, QFont.Bold))
+        tableWidget.horizontalHeader().setStyleSheet("background-color: lightgrey; font-weight: bold; font-size: 12px;")
+        tableWidget.verticalHeader().setVisible(False)
+
+        # Iterate over each section (customer) in the INI file
+        for section in config.sections():
+            # Retrieve all options for the current section
+            options = [section] + [config[section][option] for option in config[section]]
+            # Append options to the table as a new row
+            row_position = tableWidget.rowCount()
+            tableWidget.insertRow(row_position)
+            for j, option in enumerate(options):
+                item = QTableWidgetItem(option)
+                tableWidget.setItem(row_position, j, item)
+
+        # Set table dimensions and properties
+        tableWidget.setRowCount(tableWidget.rowCount())  # Ensure proper row count
+        tableWidget.setHorizontalHeaderLabels(["Name", "#", "Last Date Vistied", "Phone Number", "Total Paid", "Email", "Heard about us from:"])
+        tableWidget.setFixedWidth(1100)
+        tableWidget.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        tableWidget.verticalHeader().setSectionResizeMode(QHeaderView.Stretch)
+
+        return tableWidget
+
 
     def disable_modification(self, table):
         for row in range(table.rowCount()):

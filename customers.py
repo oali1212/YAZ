@@ -1,28 +1,40 @@
 import sys
-from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QTableWidget, QTableWidgetItem
+from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QTableWidget, QTableWidgetItem, QMessageBox
 from PyQt5.QtGui import QFont
 from PyQt5.QtCore import Qt
+from configparser import ConfigParser
+from backend_functions import YAZ
 
 class CustomersPage(QWidget):
-    def __init__(self,parent):
+    def __init__(self, parent):
         super().__init__()
         self.parent = parent
         self.setWindowTitle("Customers Data")
         self.setGeometry(100, 100, 800, 600)  # Set window size
         self.setStyleSheet("background-color: #F5F5DC;")  # Background color
 
+        self.config_file = 'customers.ini'
+        self.config = ConfigParser()
+        self.config.read(self.config_file)
+
         main_layout = QVBoxLayout()
 
-        # Top layout with back, minimize and close buttons
+        # Top layout with buttons
         top_layout = QHBoxLayout()
 
-        self.back_button = QPushButton("◀")
+        self.back_button = QPushButton("◀ Back")
         self.back_button.setFixedSize(100, 40)
-        self.back_button.setStyleSheet("font-size: 35px;")        
+        self.back_button.setStyleSheet("font-size: 14px;")        
 
+        self.add_button = QPushButton("Add Client")
+        self.remove_button = QPushButton("Remove Client")
+        self.edit_button = QPushButton("Edit Client")
 
         top_layout.addWidget(self.back_button)
         top_layout.addStretch()
+        top_layout.addWidget(self.add_button)
+        top_layout.addWidget(self.remove_button)
+        top_layout.addWidget(self.edit_button)
   
         main_layout.addLayout(top_layout)
 
@@ -33,38 +45,37 @@ class CustomersPage(QWidget):
         title.setEnabled(False)
         main_layout.addWidget(title, alignment=Qt.AlignCenter)
 
+        self.clients_file = "customers.ini"
         # Table
-        self.table = QTableWidget(10, 6)
-        self.table.setHorizontalHeaderLabels(["#", "Name", "Mobile", "E-mail", "Visit Date", "Follow", "How I Heard About"])
-        self.table.setFont(QFont('Arial', 12))
-        self.table.horizontalHeader().setFont(QFont('Arial', 12, QFont.Bold))
-        self.table.setStyleSheet("QHeaderView::section {background-color: #4682B4; color: white;} QTableWidget {gridline-color: #D3D3D3;}")
-        self.table.horizontalHeader().setStretchLastSection(True)
-        self.table.setAlternatingRowColors(True)
-        self.table.setColumnWidth(0, 50)
-        self.table.setColumnWidth(1, 200)
-        self.table.setColumnWidth(2, 150)
-        self.table.setColumnWidth(3, 200)
-        self.table.setColumnWidth(4, 150)
-        self.table.setColumnWidth(5, 100)
-        self.table.setColumnWidth(6, 200)
+        yaz = YAZ() 
 
-        # Adding some example data
-        self.table.setItem(0, 0, QTableWidgetItem("1"))
-        self.table.setItem(0, 1, QTableWidgetItem("ahmed hassan"))
-        self.table.setItem(0, 2, QTableWidgetItem("01018566506"))
-
+        self.table = yaz.create_customers_table(self.clients_file)
         main_layout.addWidget(self.table)
 
         self.setLayout(main_layout)
 
         self.back_button.clicked.connect(self.back_to_home)
+        self.add_button.clicked.connect(self.add_client)
+        self.remove_button.clicked.connect(self.remove_client)
+        self.edit_button.clicked.connect(self.edit_client)
+
+
 
     def back_to_home(self):
         self.close()
         self.parent.showMaximized()
 
+    def add_client(self):
+        # Add your code to handle adding a new client
+        pass
 
+    def remove_client(self):
+        # Add your code to handle removing a client
+        pass
+
+    def edit_client(self):
+        # Add your code to handle editing a client
+        pass
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)

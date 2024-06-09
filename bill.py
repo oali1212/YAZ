@@ -4,6 +4,9 @@ from PyQt5.QtCore import *
 from configparser import ConfigParser
 from backend_functions import YAZ
 import sys
+import pandas as pd
+import datetime as dt
+
 class TabWindow(QWidget):
     def __init__(self, name):
         super().__init__()
@@ -43,9 +46,9 @@ class TabWindow(QWidget):
 
 
 class NewBillPage(QWidget):
-    def __init__(self):
+    def __init__(self,parent):
         super().__init__()
-
+        self.parent = parent
         self.setWindowTitle("New Bill")
         self.setStyleSheet("background-color: #F5F5DC;")  # Background color
 
@@ -57,7 +60,14 @@ class NewBillPage(QWidget):
         header_layout = QHBoxLayout()
         header_label = QLabel("New Bill")
         header_label.setStyleSheet("font-size: 30px; font-weight: 900; font-family: Comic Sans MS;")
+        self.back_button = QPushButton("◀")
+        self.back_button.setFixedSize(100, 40)
+        self.back_button.setStyleSheet("font-size: 35px;")   
+        header_layout.addWidget(self.back_button)
         header_layout.addWidget(header_label)
+        self.back_button.clicked.connect(self.back_to_home)
+
+
         header_layout.addStretch()
 
         self.cart_button = QPushButton()
@@ -100,14 +110,21 @@ class NewBillPage(QWidget):
                 table.setCellWidget(row,4,add_button)               
                 add_button.clicked.connect(lambda _, row=row,: self.add_button_clicked(row, self.current_tab))
 
-
+        self.customers_file  = "customers.ini"
         # Right Layout
         self.right_layout = QVBoxLayout()
         self.right_layout.setAlignment(Qt.AlignTop)
 
+        self.current_customers = []
+        config = ConfigParser()
+        config.read(self.customers_file)
+        self.current_customers = config.sections()
+
+
         # Customer Name Input
-        self.customer_name_input = QLineEdit()
-        self.customer_name_input.setPlaceholderText("Enter customer name")
+        self.customer_name_input = QComboBox()
+        self.customer_name_input.addItems(['**Please Select a Customer**'] + self.current_customers)
+
         self.customer_name_input.setFixedHeight(40)
         self.customer_name_input.setStyleSheet("font-size: 20px; font-weight: bold; background-color: white; border: 1px solid grey; border-radius: 5px; padding: 5px;")
         self.right_layout.addWidget(self.customer_name_input)
@@ -215,13 +232,14 @@ class NewBillPage(QWidget):
     def remove_from_bill(self, row):
 
 
-        self.current_bill_items.pop(row)
+
         self.bill_table.removeRow(row)
         self.update_total_and_items()  # Update the total price
 
+        self.bind_new_rows()
 
     def update_total_and_items(self):
-        
+        self.current_bill_items = []
         for row in range(self.bill_table.rowCount()):
             item = self.bill_table.item(row,3).text()
             if item:
@@ -230,7 +248,9 @@ class NewBillPage(QWidget):
         total_price = sum(self.current_bill_items)
         self.total_price_label.setText(f"Total Price: {total_price} EGP")
 
-
+    def back_to_home(self):
+        self.close()
+        self.parent.showMaximized()
 
 
 class DiscountDialog(QDialog):
@@ -251,9 +271,12 @@ class DiscountDialog(QDialog):
     def get_discount(self):
         return self.combobox.currentText()  
 
+
+
+
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-    window = NewBillPage()
+    window = NewBillPage('')
 
     window.showMaximized()
     sys.exit(app.exec_())

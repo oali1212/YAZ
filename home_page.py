@@ -8,7 +8,7 @@ from reports import ReportsPage
 from customers import CustomersPage
 from setting import SettingsPage
 from services import ServicesPage
-
+from bill import NewBillPage
 
 class HomePage(QWidget):
     def __init__(self):
@@ -130,6 +130,7 @@ class HomePage(QWidget):
         self.bill_button.setText("New Bill")
         self.bill_button.setFont(QFont("Arial", 15, QFont.Bold))
         self.bill_button.setCursor(Qt.PointingHandCursor)
+        self.bill_button.clicked.connect(self.go_to_bill)
         grid_layout.addWidget(self.bill_button, 2, 1)       
 
         layout.addStretch()
@@ -162,7 +163,11 @@ class HomePage(QWidget):
         self.settings_page.showMaximized() 
 
 
-
+    def go_to_bill(self):
+        self.close()
+        self.bill = NewBillPage(self)
+        self.bill.showMaximized() 
+        
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     window = HomePage()
