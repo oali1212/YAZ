@@ -1,39 +1,28 @@
 import sys
-from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QGridLayout
-from PyQt5.QtGui import QFont, QIcon
-from PyQt5.QtCore import Qt
+import pickle
+from PyQt5.QtWidgets import *
+from PyQt5.QtGui import *
+from PyQt5.QtCore import *
 
 class SettingsPage(QWidget):
-    def __init__(self,parent):
+    def __init__(self, parent=None):
         super().__init__()
         self.parent = parent
-        self.setWindowTitle("SettingsPage")
+        self.setWindowTitle("Password Manager")
         self.setGeometry(100, 100, 800, 600)  # Set window size
         self.setStyleSheet("background-color: #F5F5DC;")  # Background color
+
+        self.users = self.load_users()
 
         main_layout = QVBoxLayout()
         main_layout.setContentsMargins(20, 20, 20, 20)  # Adjust margins
 
-        # Top layout with back, minimize and close buttons
+        # Top layout with back, minimize, and close buttons
         top_layout = QHBoxLayout()
 
         self.back_button = QPushButton("◀")
         self.back_button.setFixedSize(100, 40)
         self.back_button.setStyleSheet("font-size: 35px;")       
-
-        # self.back_button.setStyleSheet("""
-        #     QPushButton {
-        #         background-color: white; 
-        #         color: white; 
-        #         font-size: 12px; 
-        #         font-weight: bold;
-        #     }
-        #     QPushButton::hover {
-        #         background-color: #333;
-        #     }
-        # """)
-
-
 
         top_layout.addWidget(self.back_button)
         top_layout.addStretch()
@@ -41,20 +30,24 @@ class SettingsPage(QWidget):
         main_layout.addLayout(top_layout)
 
         # Title
-      
+        title_label = QLabel("Password Management Tool")
+        title_label.setFont(QFont('Arial', 24))
+        title_label.setAlignment(Qt.AlignCenter)
+        main_layout.addWidget(title_label)
+
         # Grid Layout for Buttons
         grid_layout = QGridLayout()
         grid_layout.setSpacing(20)  # Adjust the spacing between buttons
 
         buttons = [
-            ("Add User", None), ("Edit Price List", None), 
-            ("Delete User", None), ("Show Price List", None), 
-            ("E-mail", None), ("whatsapp", None)
+            ("Add User", self.add_user), 
+            ("Delete User", self.delete_user), 
+            ("Show Users", self.show_users)
         ]
 
-        positions = [(i, j) for i in range(3) for j in range(2)]
+        positions = [(i, j) for i in range(2) for j in range(2)]
 
-        for position, (label, image) in zip(positions, buttons):
+        for position, (label, handler) in zip(positions, buttons):
             button = QPushButton(label)
             button.setFixedSize(250, 40)
             button.setStyleSheet("""
@@ -70,8 +63,7 @@ class SettingsPage(QWidget):
                     background-color: #DDD;
                 }
             """)
-            if image:
-                button.setIcon(QIcon(image))
+            button.clicked.connect(handler)
             grid_layout.addWidget(button, *position)
 
         main_layout.addLayout(grid_layout)
@@ -83,10 +75,69 @@ class SettingsPage(QWidget):
 
     def back_to_home(self):
         self.close()
-        self.parent.showMaximized()
+        if self.parent:
+            self.parent.showMaximized()
 
+    def load_users(self):
+        try:
+            with open('users.bin', 'rb') as f:
+                return pickle.load(f)
+        except (FileNotFoundError, EOFError):
+            return {}
+
+    def save_users(self):
+        with open('users.bin', 'wb') as f:
+            pickle.dump(self.users, f)
+
+    def add_user(self):
+        username, ok = QInputDialog.getText(self, 'Add User', 'Enter username:')
+        if ok and username:
+            if username in self.users:
+                QMessageBox.warning(self, 'Error', 'User already exists!')
+            else:
+                password, ok = QInputDialog.getText(self, 'Add User', 'Enter password:')
+                if ok and password:
+                    self.users[username] = password
+                    self.save_users()
+                    QMessageBox.information(self, 'Success', 'User added successfully!')
+
+    def delete_user(self):
+        if not self.users:
+            QMessageBox.warning(self, 'Error', 'No users to delete!')
+            return
+
+        dialog = QDialog(self)
+        dialog.setWindowTitle('Delete User')
+        layout = QVBoxLayout(dialog)
+
+        combo = QComboBox(dialog)
+        combo.addItems(self.users.keys())
+        layout.addWidget(combo)
+
+        buttons = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel, Qt.Horizontal, dialog)
+        buttons.accepted.connect(dialog.accept)
+        buttons.rejected.connect(dialog.reject)
+        layout.addWidget(buttons)
+
+        if dialog.exec_() == QDialog.Accepted:
+            username = combo.currentText()
+            if username in self.users:
+                del self.users[username]
+                self.save_users()
+                QMessageBox.information(self, 'Success', 'User deleted successfully!')
+            else:
+                QMessageBox.warning(self, 'Error', 'User does not exist!')
+
+    def show_users(self):
+        user_list = '\n'.join(self.users.keys())
+        QMessageBox.information(self, 'Users', f'Existing Users:\n{user_list}')
+
+    def validate_user(self, username, password):
+        return self.users.get(username) == password
+    
+    
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-    window = SettingsPage()
+    window = SettingsPage('')
     window.show()
     sys.exit(app.exec_())

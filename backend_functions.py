@@ -325,5 +325,5 @@ class YAZ:
         df.to_excel(file_path, index=False)
         print(f"File saved as {file_path}")
 
-yaz = YAZ() 
-yaz.add_to_main_sheet("main_sheet",["01/01/2022","22:22", "IN", "Mohamed Ahmed's bill", "", "moh"])
+# yaz = YAZ() 
+# yaz.add_to_main_sheet("main_sheet",["01/01/2022","22:22", "IN", "Mohamed Ahmed's bill", "", "moh"])
