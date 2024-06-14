@@ -6,7 +6,8 @@ from backend_functions import YAZ
 import sys
 import pandas as pd
 import datetime as dt
-
+from datetime import datetime
+import re 
 class TabWindow(QWidget):
     def __init__(self, name):
         super().__init__()
@@ -46,9 +47,10 @@ class TabWindow(QWidget):
 
 
 class NewBillPage(QWidget):
-    def __init__(self,parent):
+    def __init__(self,parent,user):
         super().__init__()
         self.parent = parent
+        self.user = user
         self.setWindowTitle("New Bill")
         self.setStyleSheet("background-color: #F5F5DC;")  # Background color
 
@@ -246,8 +248,8 @@ class NewBillPage(QWidget):
             if item:
                 item = float(item)
                 self.current_bill_items.append(item)
-        total_price = sum(self.current_bill_items)
-        self.total_price_label.setText(f"Total Price: {total_price} EGP")
+        self.total_price = sum(self.current_bill_items)
+        self.total_price_label.setText(f"Total Price: {self.total_price} EGP")
 
     def back_to_home(self):
         self.close()
@@ -265,12 +267,22 @@ class NewBillPage(QWidget):
 
         else:
             yaz = YAZ() 
+            price = self.total_price_label.text() 
+
             name = self.customer_name_input.currentText() 
             name = name.replace(" ", "_")
-            yaz.save_table_to_excel(self.bill_table,name,)
+            yaz.save_table_to_excel(self.bill_table,name)
+            now = datetime.now()               
+            date_str = now.strftime("%d/%m/%y")
+            time_str = now.strftime("%H:%M")
+            unique_id = now.strftime("%d%m%y%H%M")
+            yaz.append_row_to_main_sheet([date_str, time_str, unique_id, "IN", f"{name.replace('_', ' ')}'s Bill", self.total_price,  "Notes",self.user])
 
-
-
+            ok_msg = QMessageBox()
+            ok_msg.setIcon(QMessageBox.Information)
+            ok_msg.setText(f"Bill for {name} Saved successfully")
+            ok_msg.setWindowTitle("Saving")
+            ok_msg.exec_()
 
 
 class DiscountDialog(QDialog):

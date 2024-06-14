@@ -11,9 +11,9 @@ from services import ServicesPage
 from bill import NewBillPage
 
 class HomePage(QWidget):
-    def __init__(self):
+    def __init__(self,user):
         super().__init__()
-
+        self.user = user
         self.setWindowTitle("Main Window")
         self.setStyleSheet("background-color: #f4f1ea;")
 
@@ -165,7 +165,7 @@ class HomePage(QWidget):
 
     def go_to_bill(self):
         self.close()
-        self.bill = NewBillPage(self)
+        self.bill = NewBillPage(self,self.user)
         self.bill.showMaximized() 
         
 if __name__ == '__main__':

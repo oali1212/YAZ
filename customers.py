@@ -75,6 +75,7 @@ class CustomersPage(QWidget):
 
     def save_all(self):
         yaz = YAZ() 
+        #print(self.clients_file)
         yaz.update_ini_from_table(self.table, self.clients_file)
         QMessageBox.information(None, "Success", "Customers saved successfully")
 

@@ -1,8 +1,5 @@
-import openpyxl
-import openpyxl.reader
-from openpyxl.utils import get_column_letter
+from openpyxl import Workbook, load_workbook 
 import os
-import sys
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from configparser import ConfigParser
@@ -16,98 +13,90 @@ class YAZ:
 
 
     def __init__(self): 
-        self.main_sheet_titles = ["Date", "Time", "Transaction Type", "Transaction Description","Amount (EGP)",  "Notes",  "Logged by:"]
 
-        self.main_sheet_directory = "Main Report and Performance"
-        self.main_sheet_name = "main_sheet.xlsx"
-    def adjust_cell_width(self,sheet):
+
+        self.main_sheet_titles = ["Date", "Time", "Unique ID", "Transaction Type", "Transaction Description","Amount (EGP)",  "Notes",  "Logged by:"]
+
+
+    def create_main_sheet(self):
+        # Define the path to save the workbook
+        file_path = './Customers Bills/main_sheet.xlsx'
         
-        # Autofit column width
-        for column in sheet.columns:
-            max_length = 0
-            column_letter = get_column_letter(column[0].column)
-            for cell in column:
-                try:
-                    if len(str(cell.value)) > max_length:
-                        max_length = len(cell.value)
-                except:
-                    pass
-            adjusted_width = (max_length + 2) * 1.2  # Adjusted width with a little buffer
-            sheet.column_dimensions[column_letter].width = adjusted_width
-
+        # Create a workbook and select the active worksheet
+        wb = Workbook()
+        ws = wb.active
         
-    def create_main_sheet(self, column_names):
-        excel_path = os.path.join(self.main_sheet_directory, self.main_sheet_name)
-        workbook = openpyxl.Workbook()
-        sheet = workbook.active
+        # Set the title of the worksheet
+        ws.title = "Main Sheet"
+        
+        # Add the titles to the first row
+        for col_num, title in enumerate(self.main_sheet_titles, 1):
+            ws.cell(row=1, column=col_num, value=title)
+        
+        # Save the workbook
+        wb.save(file_path)
 
-        for idx, column_name in enumerate(column_names, start=1):
-            cell = sheet.cell(row=1, column=idx, value=column_name)
-            cell.font = cell.font.copy(bold=True)
-            cell.fill = openpyxl.styles.fills.PatternFill(start_color="DDDDDD", end_color="DDDDDD",
-                                                           fill_type="solid")
-
-        self.adjust_cell_width(sheet)
-        workbook.save(self.main_sheet_name)
-
-
-    def add_to_main_sheet(self, entry, index=None):
-        excel_path = os.path.join(self.main_sheet_directory, self.main_sheet_name)
-
-        if not os.path.exists(excel_path):
-            self.create_main_sheet(self.main_sheet_titles)
-
-        workbook = openpyxl.load_workbook(filename=excel_path)
-        sheet = workbook.active
-        valid_columns = sheet.max_column
-        valid_rows = sheet.max_row
-
-        if valid_columns == 0 or valid_rows == 0:
-            print(f"Main sheet has no data! Rows: {valid_rows}, Columns: {valid_columns}")
+    def append_row_to_main_sheet(self, row_data):
+        # Define the path to save the workbook
+        directory_path = './Customers Bills'
+        file_path = os.path.join(directory_path, 'main_sheet.xlsx')
+        
+        # Check if the row has the correct length
+        if len(row_data) != len(self.main_sheet_titles):
             return False
+        
+        # Check if the workbook exists, if not create it
+        if not os.path.exists(file_path):
+            self.create_main_sheet()
+        
+        # Load the workbook and select the active worksheet
+        wb = load_workbook(file_path)
+        ws = wb.active
+        
+        # Append the row data
+        ws.append(row_data)
+        
+        # Save the workbook
+        wb.save(file_path)
+        
+        return True
 
-        elif len(entry) != valid_columns:
-            print(f"Entry length must be equal to the number of titles! Entry length: {len(entry)}, Titles: {valid_columns}")
+    def delete_row_by_id(self, value):
+        # Define the path to save the workbook
+        directory_path = './Customers Bills'
+        file_path = os.path.join(directory_path, 'main_sheet.xlsx')
+        
+        # Check if the workbook exists
+        if not os.path.exists(file_path):
+            #print("Workbook does not exist.")
             return False
-
-        else:
-            if not index:
-                row = valid_rows + 1
-            else:
-                row = index
-
-            for col, value in enumerate(entry, start=1):
-                sheet.cell(row=row, column=col, value=value)
-
-            self.adjust_cell_width(sheet)
-            workbook.save(excel_path)
-            print("Entry appended successfully.")
+        
+        # Load the workbook and select the active worksheet
+        wb = openpyxl.load_workbook(file_path)
+        ws = wb.active
+        
+        # Iterate over the rows to find the value in the second column
+        row_to_delete = None
+        for row in ws.iter_rows(min_row=2, max_col=3, values_only=False):
+            if row[1].value == value:
+                row_to_delete = row[0].row
+                break
+        
+        # If a matching row is found, delete it
+        if row_to_delete:
+            ws.delete_rows(row_to_delete)
+            wb.save(file_path)
             return True
-
-
-    def remove_from_main_sheet(self, index):
-        if not self.main_sheet_name in os.listdir(): 
-            #print("Main sheet not found!")
-            return False
-        
-        workbook = openpyxl.load_workbook(filename=self.main_sheet_name)
-        sheet = workbook.active
-        valid_columns = sheet.max_column
-        valid_rows = sheet.max_row
-
-        if index > valid_rows:
-            #print("The row requested to delete does not exist!")
-            return False
         else:
-            self.add_to_main_sheet([""]*valid_columns,index = 3)
-
+            #print("Value not found.")
+            return False
 
     def create_price_table(self, ini_file, section):
         config = ConfigParser()
         config.read(ini_file)
         
         if section not in config:
-            #print(f"Section {section} not found in the INI file.")
+            ##print(f"Section {section} not found in the INI file.")
             return None
         
         # Assuming services are stored in a "key = value" format under section
@@ -165,7 +154,6 @@ class YAZ:
         self.disable_modification(tableWidget)
         return tableWidget
     
-
     def create_customers_table(self, ini_file):
         tableWidget = QTableWidget()
         tableWidget.setStyleSheet("background-color: white;")
@@ -220,13 +208,13 @@ class YAZ:
                     config[section]['email'] = tableWidget.item(row, 5).text()
                     config[section]['heard_about_us'] = tableWidget.item(row, 6).text()
                 
-                    #print(config.sections())
+                    ##print(config.sections())
             # Write the updated data back to the INI file
+            #print(ini_file)
             with open(ini_file, 'w') as configfile:
+                
                 config.write(configfile)
-                #print(f"INI file '{ini_file}' updated successfully.")
-
-
+                ##print(f"INI file '{ini_file}' updated successfully.")
 
     def disable_modification(self, table):
         for row in range(table.rowCount()):
@@ -234,7 +222,6 @@ class YAZ:
                 item = table.item(row, col)
                 if item:
                     item.setFlags(item.flags() & ~Qt.ItemIsEditable)
-
 
     def add_service(self, ini_file, section, name, price):
 
@@ -251,9 +238,6 @@ class YAZ:
         
         with open(ini_file, 'w') as config_file:
             config.write(config_file)
-
-
-
 
     def delete_service(self, file_path, section, index):
         index = int(index)
@@ -293,8 +277,6 @@ class YAZ:
         with open(file_path, 'w') as configfile:
             config.write(configfile)
 
-
-
     def save_table_to_excel(self, table: QTableWidget, name: str):
         # Convert QTableWidget to pandas DataFrame
         data = []
@@ -323,7 +305,10 @@ class YAZ:
         file_name = f"{name}_{timestamp}.xlsx"
         file_path = os.path.join(customer_folder, file_name)
         df.to_excel(file_path, index=False)
-        print(f"File saved as {file_path}")
+        #print(f"File saved as {file_path}")
 
-# yaz = YAZ() 
-# yaz.add_to_main_sheet("main_sheet",["01/01/2022","22:22", "IN", "Mohamed Ahmed's bill", "", "moh"])
+# yaz = YAZ() s
+# yaz.create_main_sheet()
+# yaz.append_row_to_main_sheet([1,2223232,3,4,5,6,7,8])
+# yaz.append_row_to_main_sheet([1,2222,3,4,5,6,7,8])
+# yaz.delete_row_by_id(2222)

@@ -97,7 +97,7 @@ class LoginWindow(QWidget):
         login_status = self.login_check()
         if login_status == True:
             self.close()
-            self.home_page = HomePage()
+            self.home_page = HomePage(self.username)
             self.home_page.showMaximized()
         elif login_status == -1:
             self.wrong_password("Username and/or password value(s) cannot be empty!")
@@ -108,12 +108,12 @@ class LoginWindow(QWidget):
         return self.users.get(username) == password
 
     def login_check(self):
-        username = self.username_edit.text()
+        self.username = self.username_edit.text()
         password = self.password_edit.text()
 
-        if username == '' or password == '':
+        if self.username == '' or password == '':
             return -1
-        elif self.validate_user(username, password):
+        elif self.validate_user(self.username, password):
             return True
         else:
             return False
