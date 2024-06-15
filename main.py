@@ -25,15 +25,6 @@ class Main():
         sys.exit(self.app.exec_())
         
 
-
-
-
-
-
-    def back_to_home(self):
-        self.close()
-        self.home_page.showMaximized()
-
     
         
 main = Main()

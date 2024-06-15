@@ -5,6 +5,7 @@ from PyQt5.QtCore import Qt
 from configparser import ConfigParser
 from backend_functions import YAZ
 
+
 class CustomersPage(QWidget):
     def __init__(self, parent):
         super().__init__()

@@ -115,13 +115,13 @@ class eyelashesPage(QWidget):
             yaz.delete_service(self.settings_file,self.section,index+1)
             
             ##print(f"i am trying to delete {name}")
-            self.new_table = yaz.create_price_table(self.settings_file, self.section)
-            if self.new_table: 
+            self.table.deleteLater()
+            self.table = yaz.create_price_table(self.settings_file, self.section)
+            if self.table: 
                 
-                self.table.setParent(None)
-                self.table = self.new_table
-                self.table_layout.addWidget(self.table)        
-                self.add_table_bindings()
+
+                self.table_layout.addWidget(self.table)       
+                self.add_table_bindings()#need'nt
 
     def back_to_home(self):
         self.close()

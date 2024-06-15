@@ -7,8 +7,10 @@ from PyQt5.QtGui import QFont
 import math
 from datetime import datetime
 import pandas as pd
-
-
+from win32com import client 
+import time
+from openpyxl.styles import PatternFill, Font
+from openpyxl.utils import get_column_letter
 class YAZ:
 
 
@@ -29,13 +31,38 @@ class YAZ:
         # Set the title of the worksheet
         ws.title = "Main Sheet"
         
-        # Add the titles to the first row
+        # Add the titles to the first row and make headers bold
+        bold_font = Font(bold=True)
         for col_num, title in enumerate(self.main_sheet_titles, 1):
-            ws.cell(row=1, column=col_num, value=title)
+            cell = ws.cell(row=1, column=col_num, value=title)
+            cell.font = bold_font
+        
+        # Apply pattern color (baby blue and white) to the table
+        baby_blue_fill = PatternFill(start_color='ADD8E6', end_color='ADD8E6', fill_type='solid')
+        white_fill = PatternFill(start_color='FFFFFF', end_color='FFFFFF', fill_type='solid')
+        
+        for row in ws.iter_rows(min_row=2, max_row=len(self.main_sheet_titles), min_col=1, max_col=len(self.main_sheet_titles[0])):
+            for cell in row:
+                if cell.row % 2 == 0:
+                    cell.fill = baby_blue_fill
+                else:
+                    cell.fill = white_fill
+        
+        # Adjust column sizes with their content
+        for col in ws.columns:
+            max_length = 0
+            column = col[0].column_letter  # Get the column name
+            for cell in col:
+                try:
+                    if len(str(cell.value)) > max_length:
+                        max_length = len(cell.value)
+                except:
+                    pass
+            adjusted_width = (max_length + 2) * 1.2
+            ws.column_dimensions[column].width = adjusted_width
         
         # Save the workbook
         wb.save(file_path)
-
     def append_row_to_main_sheet(self, row_data):
         # Define the path to save the workbook
         directory_path = './Customers Bills'
@@ -72,7 +99,7 @@ class YAZ:
             return False
         
         # Load the workbook and select the active worksheet
-        wb = openpyxl.load_workbook(file_path)
+        wb = load_workbook(file_path)
         ws = wb.active
         
         # Iterate over the rows to find the value in the second column
@@ -306,7 +333,9 @@ class YAZ:
         file_path = os.path.join(customer_folder, file_name)
         df.to_excel(file_path, index=False)
         #print(f"File saved as {file_path}")
+        # Open Microsoft Excel 
 
+ 
 # yaz = YAZ() s
 # yaz.create_main_sheet()
 # yaz.append_row_to_main_sheet([1,2223232,3,4,5,6,7,8])

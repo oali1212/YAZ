@@ -3,11 +3,12 @@ from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from configparser import ConfigParser
 from backend_functions import YAZ
+import os
 import sys
-import pandas as pd
-import datetime as dt
 from datetime import datetime
-import re 
+from PIL import Image
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas
 class TabWindow(QWidget):
     def __init__(self, name):
         super().__init__()
@@ -53,6 +54,9 @@ class NewBillPage(QWidget):
         self.user = user
         self.setWindowTitle("New Bill")
         self.setStyleSheet("background-color: #F5F5DC;")  # Background color
+        self.timer = QTimer()  # Create a QTimer instance
+        self.timer.timeout.connect(self.update_date_time)  # Connect timeout signal to update_date_time method
+        self.timer.start(1000)  # Start the timer to update every 1000 ms (1 second)
 
         # Main Layout
         self.main_layout = QVBoxLayout()
@@ -122,14 +126,32 @@ class NewBillPage(QWidget):
         config.read(self.customers_file)
         self.current_customers = config.sections()
 
-
+        self.layout_0  = QHBoxLayout()
+        pixmap = QPixmap('./img/logo.png')
+        pixmap = pixmap.scaled(90,70,aspectRatioMode=Qt.KeepAspectRatio)
+        self.logol_label = QLabel()
+        self.logol_label.setPixmap(pixmap)
+        Data = QLabel("YAZ Lounge \n18 Mohammed Zaki St, El-Nozha, Cairo\nTel: +201115053137")
+        Data.setStyleSheet("font-size: 15px; font-weight: bold;")
+        self.layout_0.addWidget(self.logol_label)
+        self.layout_0.addWidget(Data)
         # Customer Name Input
+        layout_1 = QHBoxLayout() 
+
+        label_insert_name = QLabel("Client Name: ")
+        label_insert_name.setStyleSheet("font-size: 15px; font-weight: bold;  border-radius: 5px; padding: 5px;")
+        layout_1.addWidget(label_insert_name)
         self.customer_name_input = QComboBox()
+        # self.customer_name_input.setFixedWidth(700)
         self.customer_name_input.addItems(['**Please Select a Customer**'] + self.current_customers)
 
         self.customer_name_input.setFixedHeight(40)
-        self.customer_name_input.setStyleSheet("font-size: 20px; font-weight: bold; background-color: white; border: 1px solid grey; border-radius: 5px; padding: 5px;")
-        self.right_layout.addWidget(self.customer_name_input)
+        self.customer_name_input.setStyleSheet("font-size: 15px; font-weight: bold; background-color: white; border: 1px solid grey; border-radius: 5px; padding: 5px;")
+        # self.right_layout.addWidget(self.customer_name_input)
+        self.right_layout.addLayout(self.layout_0)
+        self.right_layout.addLayout(layout_1)
+        
+        layout_1.addWidget(self.customer_name_input)
 
         # Bill Table
         self.bill_table = QTableWidget()
@@ -138,16 +160,29 @@ class NewBillPage(QWidget):
         self.bill_table.setHorizontalHeaderLabels(['Service', 'Price', 'Discount %', 'Total', ''])
         self.bill_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.bill_table.setGridStyle(Qt.SolidLine)
+        
+
+        
+        self.date_time_label = QLabel()
+        self.date_time_label.setStyleSheet("font-size: 15px; ")
+        self.date_time_label.setAlignment(Qt.AlignRight)            
+
+
+        total_temp_w = QHBoxLayout() 
+        # Total Price Label
+        self.total_price_label = QLabel("Total Price: 0 EGP")
+        self.total_price_label.setStyleSheet("font-size: 15px; ")
+        self.right_layout.addLayout(total_temp_w)
+        # self.right_layout.addWidget(self.total_price_label, alignment=Qt.AlignRight)
         self.right_layout.addWidget(self.bill_table)
 
 
-                    
 
 
-        # Total Price Label
-        self.total_price_label = QLabel("Total Price: 0 EGP")
-        self.total_price_label.setStyleSheet("font-size: 20px; font-weight: bold;")
-        self.right_layout.addWidget(self.total_price_label, alignment=Qt.AlignRight)
+        total_temp_w.addWidget(self.date_time_label)
+        total_temp_w.addStretch() 
+        total_temp_w.addWidget(self.total_price_label)
+
 
         self.save_button = QPushButton("Save")
         self.save_button.setFixedSize(200, 40)
@@ -167,7 +202,11 @@ class NewBillPage(QWidget):
 
         ## BIND 
         self.tab_widget.currentChanged.connect(self.update_current_tab)
+        self.update_date_time()
 
+    def update_date_time(self):
+        current_datetime = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+        self.date_time_label.setText( current_datetime)
 
     def bind_new_rows(self):
         for row in range(self.bill_table.rowCount()):
@@ -256,7 +295,16 @@ class NewBillPage(QWidget):
         self.parent.showMaximized()
 
 
-
+    def convert_image_to_pdf(self,image_path, pdf_path):
+        # Create a canvas
+        c = canvas.Canvas(pdf_path, pagesize=letter)
+        
+        # Draw the image on the canvas
+        c.drawImage(image_path, 0, 0, width=letter[0], height=letter[1])
+        
+        # Save the PDF
+        c.save()
+        
     def save_bill(self): 
         if self.total_price_label.text() ==  "Total Price: 0 EGP" or self.customer_name_input.currentText() == "**Please Select a Customer**":
             warning_msg = QMessageBox()
@@ -283,6 +331,47 @@ class NewBillPage(QWidget):
             ok_msg.setText(f"Bill for {name} Saved successfully")
             ok_msg.setWindowTitle("Saving")
             ok_msg.exec_()
+            # Calculate screenshot dimensions and position
+            combo_box_pos = self.customer_name_input.mapToGlobal(QPoint(0, 0))  # Global position of the combobox
+            combo_box_size = self.customer_name_input.size()  # Size of the combobox
+
+            total_price_pos = self.total_price_label.mapToGlobal(QPoint(0, 0))  # Global position of the total price label
+            total_price_size = self.total_price_label.size()  # Size of the total price label
+
+            table_pos = self.bill_table.mapToGlobal(QPoint(0, 0))  # Global position of the bill_table
+            table_size = self.bill_table.size()  # Size of the bill_table
+
+            logo_pos = self.logol_label.mapToGlobal(QPoint(0, 0))  # Global position of the logo label
+            logo_size = self.logol_label.size()  # Size of the logo label
+
+            # Calculate capture dimensions
+            capture_x = min(combo_box_pos.x(), total_price_pos.x(), table_pos.x(), logo_pos.x())  # Leftmost edge of the widgets
+            capture_y = min(combo_box_pos.y(), total_price_pos.y(), table_pos.y(), logo_pos.y())  # Topmost edge of the widgets
+            capture_width = max(combo_box_pos.x() + combo_box_size.width(),
+                                total_price_pos.x() + total_price_size.width(),
+                                table_pos.x() + table_size.width(),
+                                logo_pos.x() + logo_size.width()) - capture_x  # Width to include all widgets
+            capture_height = table_pos.y() + table_size.height() - capture_y  # Height to include all widgets
+
+            # Take a screenshot of the specified region
+            screenshot = QGuiApplication.primaryScreen().grabWindow(
+                QApplication.desktop().winId(), 
+                capture_x, capture_y, capture_width, capture_height
+            )
+
+ 
+
+            yaz.save_table_to_excel(self.bill_table,name)
+            now = datetime.now()               
+            date_str = now.strftime("%d_%m_%y")
+            time_str = now.strftime("%H_%M")    
+            name = str(name)
+            image_path = ".//" + "Customers Bills" + "//" + name +"//"+ f"{name}_{date_str}_{time_str}.jpg"
+            pdf_path = ".//" + "Customers Bills" + "//" + name +"//"+ f"{name}_{date_str}_{time_str}.pdf"
+            screenshot.save(image_path)
+            self.convert_image_to_pdf(image_path, pdf_path)
+            os.remove(image_path)
+
 
 
 class DiscountDialog(QDialog):
@@ -308,7 +397,7 @@ class DiscountDialog(QDialog):
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-    window = NewBillPage('')
+    window = NewBillPage('','asdas')
 
     window.showMaximized()
     sys.exit(app.exec_())
