@@ -35,7 +35,11 @@ class YAZ:
     
    
         # Save the workbook
-        wb.save(file_path)
+        try:
+            wb.save(file_path)
+            return True
+        except Exception as e:
+            return str(e)
 
     def resize_columns_to_fit_content(self,ws):
         for col in ws.columns:
@@ -75,7 +79,11 @@ class YAZ:
         ws.append(row_data)
         
         # Save the workbook
-        wb.save(file_path)
+        try:
+            wb.save(file_path)
+            return True
+        except Exception as e: 
+            return str(e)
         
         return True
 
@@ -86,29 +94,40 @@ class YAZ:
         
         # Check if the workbook exists
         if not os.path.exists(file_path):
-            #print("Workbook does not exist.")
+            print(f"Workbook does not exist at path: {file_path}")
             return False
+        
+        print(f"Loading workbook from path: {file_path}")
         
         # Load the workbook and select the active worksheet
         wb = load_workbook(file_path)
         ws = wb.active
         
+        print(f"Searching for value '{value}' in worksheet...")
+        
         # Iterate over the rows to find the value in the second column
         row_to_delete = None
         for row in ws.iter_rows(min_row=2, max_col=3, values_only=False):
-            if row[1].value == value:
+            if row[2].value == value:
                 row_to_delete = row[0].row
+                print(f"Found matching value '{value}' in row {row_to_delete}")
                 break
         
         # If a matching row is found, delete it
         if row_to_delete:
             ws.delete_rows(row_to_delete)
-            wb.save(file_path)
-            return True
+            print(f"Deleted row {row_to_delete} containing value '{value}'")
+            try:
+                wb.save(file_path)
+                print(f"Workbook saved successfully at path: {file_path}")
+                return True
+            except Exception as e:
+                error_message = str(e)
+                print(f"Failed to save workbook: {error_message}")
+                return error_message
         else:
-            #print("Value not found.")
+            print(f"Value '{value}' not found in worksheet.")
             return False
-
     def create_price_table(self, ini_file, section):
         config = ConfigParser()
         config.read(ini_file)
@@ -342,14 +361,15 @@ class YAZ:
             table_widget = QTableWidget()
             table_widget.setRowCount(num_rows)
             table_widget.setColumnCount(num_cols)
+            table_widget.horizontalHeader().setVisible(False)
 
             for row_index, row in enumerate(rows):
                 for col_index, value in enumerate(row):
                     item = QTableWidgetItem(str(value))
                     table_widget.setItem(row_index, col_index, item)
-
+                    item = table_widget.item(row_index,col_index)
+                    item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)
             return table_widget
-
         except Exception as e:
             msg = QMessageBox()
             msg.setIcon(QMessageBox.Critical)
@@ -357,6 +377,13 @@ class YAZ:
             msg.setWindowTitle("Error")
             msg.exec_()
             return None
+        
+
+
+
+
+
+
 # yaz.create_main_sheet()
 # yaz.append_row_to_main_sheet([1,2223232,3,4,5,6,7,8])
 # yaz.append_row_to_main_sheet([1,2222,3,4,5,6,7,8])

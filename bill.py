@@ -324,8 +324,13 @@ class NewBillPage(QWidget):
             date_str = now.strftime("%d/%m/%y")
             time_str = now.strftime("%H:%M:%S")
             unique_id = now.strftime("%d%m%y%H%M%S")
-            yaz.append_row_to_main_sheet([date_str, time_str, unique_id, "IN", f"{name.replace('_', ' ')}'s Bill", self.total_price,  self.user, "Notes"])
-
+            
+            retval = yaz.append_row_to_main_sheet([date_str, time_str, unique_id, "IN", f"{name.replace('_', ' ')}'s Bill", self.total_price,  self.user, "Notes"])
+            if retval != True: 
+                
+                QMessageBox.warning(None, "Warning: File Access Error", retval + '\nPlease Close the file if it is open')
+                app.exec_()
+                return False
             ok_msg = QMessageBox()
             ok_msg.setIcon(QMessageBox.Information)
             ok_msg.setText(f"Bill for {name} Saved successfully")
