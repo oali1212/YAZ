@@ -322,9 +322,9 @@ class NewBillPage(QWidget):
             yaz.save_table_to_excel(self.bill_table,name)
             now = datetime.now()               
             date_str = now.strftime("%d/%m/%y")
-            time_str = now.strftime("%H:%M")
-            unique_id = now.strftime("%d%m%y%H%M")
-            yaz.append_row_to_main_sheet([date_str, time_str, unique_id, "IN", f"{name.replace('_', ' ')}'s Bill", self.total_price,  "Notes",self.user])
+            time_str = now.strftime("%H:%M:%S")
+            unique_id = now.strftime("%d%m%y%H%M%S")
+            yaz.append_row_to_main_sheet([date_str, time_str, unique_id, "IN", f"{name.replace('_', ' ')}'s Bill", self.total_price,  self.user, "Notes"])
 
             ok_msg = QMessageBox()
             ok_msg.setIcon(QMessageBox.Information)
@@ -361,10 +361,10 @@ class NewBillPage(QWidget):
 
  
 
-            yaz.save_table_to_excel(self.bill_table,name)
+            # yaz.save_table_to_excel(self.bill_table,name)
             now = datetime.now()               
-            date_str = now.strftime("%d_%m_%y")
-            time_str = now.strftime("%H_%M")    
+            date_str = date_str.replace("/","_")
+            time_str = time_str.replace(":","_") 
             name = str(name)
             image_path = ".//" + "Customers Bills" + "//" + name +"//"+ f"{name}_{date_str}_{time_str}.jpg"
             pdf_path = ".//" + "Customers Bills" + "//" + name +"//"+ f"{name}_{date_str}_{time_str}.pdf"

@@ -1,4 +1,6 @@
-from openpyxl import Workbook, load_workbook 
+from openpyxl import *
+from openpyxl.styles import *
+from openpyxl.utils import *
 import os
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
@@ -7,17 +9,14 @@ from PyQt5.QtGui import QFont
 import math
 from datetime import datetime
 import pandas as pd
-from win32com import client 
-import time
-from openpyxl.styles import PatternFill, Font
-from openpyxl.utils import get_column_letter
+
 class YAZ:
 
 
     def __init__(self): 
 
 
-        self.main_sheet_titles = ["Date", "Time", "Unique ID", "Transaction Type", "Transaction Description","Amount (EGP)",  "Notes",  "Logged by:"]
+        self.main_sheet_titles = ["Date", "Time", "Unique ID", "Transaction Type", "Transaction Description","Amount (EGP)",    "Logged by:" , "Notes"]
 
 
     def create_main_sheet(self):
@@ -27,28 +26,18 @@ class YAZ:
         # Create a workbook and select the active worksheet
         wb = Workbook()
         ws = wb.active
-        
+
         # Set the title of the worksheet
         ws.title = "Main Sheet"
-        
-        # Add the titles to the first row and make headers bold
-        bold_font = Font(bold=True)
         for col_num, title in enumerate(self.main_sheet_titles, 1):
             cell = ws.cell(row=1, column=col_num, value=title)
-            cell.font = bold_font
-        
-        # Apply pattern color (baby blue and white) to the table
-        baby_blue_fill = PatternFill(start_color='ADD8E6', end_color='ADD8E6', fill_type='solid')
-        white_fill = PatternFill(start_color='FFFFFF', end_color='FFFFFF', fill_type='solid')
-        
-        for row in ws.iter_rows(min_row=2, max_row=len(self.main_sheet_titles), min_col=1, max_col=len(self.main_sheet_titles[0])):
-            for cell in row:
-                if cell.row % 2 == 0:
-                    cell.fill = baby_blue_fill
-                else:
-                    cell.fill = white_fill
-        
-        # Adjust column sizes with their content
+            cell.font = Font(bold=True)        
+    
+   
+        # Save the workbook
+        wb.save(file_path)
+
+    def resize_columns_to_fit_content(self,ws):
         for col in ws.columns:
             max_length = 0
             column = col[0].column_letter  # Get the column name
@@ -58,11 +47,13 @@ class YAZ:
                         max_length = len(cell.value)
                 except:
                     pass
-            adjusted_width = (max_length + 2) * 1.2
+            adjusted_width = (max_length + 2) * 1.2  # Adjusting width a little bit for padding
             ws.column_dimensions[column].width = adjusted_width
-        
-        # Save the workbook
-        wb.save(file_path)
+            # Center align all cells in the new row
+        for row in ws.iter_rows():
+            for cell in row:
+                cell.alignment = Alignment(horizontal='center', vertical='center')
+
     def append_row_to_main_sheet(self, row_data):
         # Define the path to save the workbook
         directory_path = './Customers Bills'
@@ -79,7 +70,7 @@ class YAZ:
         # Load the workbook and select the active worksheet
         wb = load_workbook(file_path)
         ws = wb.active
-        
+        self.resize_columns_to_fit_content(ws)   
         # Append the row data
         ws.append(row_data)
         
@@ -328,7 +319,7 @@ class YAZ:
             os.makedirs(customer_folder)
         
         # Save with a timestamped name
-        timestamp = datetime.now().strftime("%d_%m_%y_%H_%M")
+        timestamp = datetime.now().strftime("%d_%m_%y_%H_%M_%S")
         file_name = f"{name}_{timestamp}.xlsx"
         file_path = os.path.join(customer_folder, file_name)
         df.to_excel(file_path, index=False)
