@@ -149,7 +149,7 @@ class HomePage(QWidget):
 
     def start_reports_page(self):
         self.close()
-        self.reports_page = ReportsPage(self)
+        self.reports_page = ReportsPage(self,self.user)
         self.reports_page.showMaximized() 
 
     def start_customers_page(self):

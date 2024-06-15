@@ -7,7 +7,7 @@ from PyQt5.QtCore import *
 from pre_login import PreLogin
 
 
-
+os.chdir(os.path.dirname(__file__))
 
 class Main():
 
