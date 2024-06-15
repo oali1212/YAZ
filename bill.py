@@ -371,7 +371,8 @@ class NewBillPage(QWidget):
             screenshot.save(image_path)
             self.convert_image_to_pdf(image_path, pdf_path)
             os.remove(image_path)
-
+            self.bill_table.setRowCount(0)
+            self.customer_name_input.setCurrentIndex(0)
 
 
 class DiscountDialog(QDialog):

@@ -326,8 +326,37 @@ class YAZ:
         #print(f"File saved as {file_path}")
         # Open Microsoft Excel 
 
- 
-# yaz = YAZ() s
+    def get_table_from_excel(self, file_path):
+        if not os.path.exists(file_path):
+            return None
+
+        try:
+            wb = load_workbook(file_path)
+            sheet = wb.active  # Get the active sheet (first sheet by default)
+
+            rows = sheet.iter_rows(values_only=True)
+
+            num_rows = sheet.max_row
+            num_cols = sheet.max_column
+
+            table_widget = QTableWidget()
+            table_widget.setRowCount(num_rows)
+            table_widget.setColumnCount(num_cols)
+
+            for row_index, row in enumerate(rows):
+                for col_index, value in enumerate(row):
+                    item = QTableWidgetItem(str(value))
+                    table_widget.setItem(row_index, col_index, item)
+
+            return table_widget
+
+        except Exception as e:
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Critical)
+            msg.setText(f"Error loading Excel file: {e}")
+            msg.setWindowTitle("Error")
+            msg.exec_()
+            return None
 # yaz.create_main_sheet()
 # yaz.append_row_to_main_sheet([1,2223232,3,4,5,6,7,8])
 # yaz.append_row_to_main_sheet([1,2222,3,4,5,6,7,8])
