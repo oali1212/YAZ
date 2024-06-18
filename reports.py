@@ -117,7 +117,7 @@ class ReportsPage(QWidget):
                 self.rebind_delete_buttons()
             else: 
                 QMessageBox.warning(None, "Warning: File Access Error", retval + '\nPlease Close the file if it is open')
-                app.exec_()
+
 
 class AddEntryDialog(QDialog):
     def __init__(self, user, parent=None):
@@ -184,8 +184,8 @@ class AddEntryDialog(QDialog):
             "price": self.price,
             "notes": self.notes
         }        
-if __name__ == '__main__':
-    app = QApplication(sys.argv)
-    window = ReportsPage('',"safas")
-    window.show()
-    sys.exit(app.exec_())
+# if __name__ == '__main__':
+#     app = QApplication(sys.argv)
+#     window = ReportsPage('',"safas")
+#     window.show()
+#     sys.exit(app.exec_())

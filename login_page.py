@@ -118,8 +118,8 @@ class LoginWindow(QWidget):
         else:
             return False
 
-if __name__ == '__main__':
-    app = QApplication(sys.argv)
-    window = LoginWindow()
-    window.showMaximized()
-    sys.exit(app.exec_())
+# if __name__ == '__main__':
+#     app = QApplication(sys.argv)
+#     window = LoginWindow()
+#     window.showMaximized()
+#     sys.exit(app.exec_())

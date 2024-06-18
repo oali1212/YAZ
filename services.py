@@ -143,32 +143,32 @@ class ServicesPage(QWidget):
         self.setLayout(layout)
 
     def back_to_home(self):
-        self.close()
+        
         self.parent.showMaximized()
-
-    def go_to_facial(self):
         self.close()
+    def go_to_facial(self):
+        
         self.facial = facialPage(self) 
         self.facial.showMaximized()
-
+        self.close()
     # Define the functions that handle the button clicks
     def go_to_nails(self):
-        self.close()
+        
         self.nails = nailsPage(self) 
         self.nails.showMaximized()
-
-    def go_to_pedicure(self):
         self.close()
+    def go_to_pedicure(self):
+        
         self.pedicure = pedicurePage(self) 
         self.pedicure.showMaximized()
-
-    def go_to_eyelashes(self):
         self.close()
+    def go_to_eyelashes(self):
+        
         self.eye = eyelashesPage(self) 
         self.eye.showMaximized()
-
-if __name__ == '__main__':
-    app = QApplication(sys.argv)
-    window = ServicesPage(' ')
-    window.showMaximized()  # عرض النافذة بحجم الشاشة بالكامل
-    sys.exit(app.exec_())
+        self.close()
+# if __name__ == '__main__':
+#     app = QApplication(sys.argv)
+#     window = ServicesPage(' ')
+#     window.showMaximized()  # عرض النافذة بحجم الشاشة بالكامل
+#     sys.exit(app.exec_())

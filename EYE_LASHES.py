@@ -124,34 +124,35 @@ class eyelashesPage(QWidget):
                 self.add_table_bindings()#need'nt
 
     def back_to_home(self):
-        self.close()
+        
         self.parent.showMaximized()
+        self.close()
 
     def edit_service(self):
         
     
         for row in range(self.table.rowCount()):  # Start from row 1
-            self.table.item(row, 1).setBackground(QtGui.QColor("grey"))
+            self.table.item(row, 1).setBackground(QColor("grey"))
 
             QCoreApplication.processEvents()
 
             time.sleep(0.02)
             QCoreApplication.processEvents()
 
-            self.table.item(row, 1).setBackground(QtGui.QColor("white"))
+            self.table.item(row, 1).setBackground(QColor("white"))
 
         for row in range(self.table.rowCount()-1,-1,-1):  # Start from row 1
-            self.table.item(row, 1).setBackground(QtGui.QColor("grey"))
+            self.table.item(row, 1).setBackground(QColor("grey"))
 
             QCoreApplication.processEvents()
 
             time.sleep(0.02)
             QCoreApplication.processEvents()
 
-            self.table.item(row, 1).setBackground(QtGui.QColor("white"))  
+            self.table.item(row, 1).setBackground(QColor("white"))  
 
         for row in range(self.table.rowCount()):  # Start from row 1
-            self.table.item(row, 1).setBackground(QtGui.QColor("grey"))
+            self.table.item(row, 1).setBackground(QColor("grey"))
 
             item = self.table.item(row, 1)
             item.setFlags(item.flags() | Qt.ItemIsEditable)
@@ -176,7 +177,7 @@ class eyelashesPage(QWidget):
 
         for row in range(self.table.rowCount()):
             item = self.table.item(row,  1)
-            item.setBackground( QtGui.QColor("white") )
+            item.setBackground( QColor("white") )
             prices_list.append(item.text())
             item.setFlags(item.flags() & ~Qt.ItemIsEditable)
 
@@ -239,8 +240,8 @@ class AddServiceDialog(QDialog):
         error_dialog.exec_()
 
 
-if __name__ == '__main__':
-    app = QApplication(sys.argv)
-    window = eyelashesPage('')
-    window.show()
-    sys.exit(app.exec_())
+# if __name__ == '__main__':
+#     app = QApplication(sys.argv)
+#     window = eyelashesPage('')
+#     window.show()
+#     sys.exit(app.exec_())

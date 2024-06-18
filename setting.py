@@ -74,10 +74,10 @@ class SettingsPage(QWidget):
         self.back_button.clicked.connect(self.back_to_home)
 
     def back_to_home(self):
-        self.close()
+        
         if self.parent:
             self.parent.showMaximized()
-
+        self.close()
     def load_users(self):
         try:
             with open('users.bin', 'rb') as f:

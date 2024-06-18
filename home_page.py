@@ -143,33 +143,33 @@ class HomePage(QWidget):
 
     
     def start_services_page(self):
-        self.close()
+        
         self.services_page = ServicesPage(self)
         self.services_page.showMaximized()
-
-    def start_reports_page(self):
         self.close()
+    def start_reports_page(self):
+        
         self.reports_page = ReportsPage(self,self.user)
         self.reports_page.showMaximized() 
-
-    def start_customers_page(self):
         self.close()
+    def start_customers_page(self):
+        
         self.customers_page = CustomersPage(self) 
         self.customers_page.showMaximized() 
-
-    def start_settings_page(self):
         self.close()
+    def start_settings_page(self):
+        
         self.settings_page = SettingsPage(self) 
         self.settings_page.showMaximized() 
-
+        self.close()
 
     def go_to_bill(self):
-        self.close()
+        
         self.bill = NewBillPage(self,self.user)
         self.bill.showMaximized() 
-        
-if __name__ == '__main__':
-    app = QApplication(sys.argv)
-    window = HomePage()
-    window.showMaximized()  # عرض النافذة بحجم الشاشة بالكامل
-    sys.exit(app.exec_())
+        self.close()
+# if __name__ == '__main__':
+#     app = QApplication(sys.argv)
+#     window = HomePage()
+#     window.showMaximized()  # عرض النافذة بحجم الشاشة بالكامل
+#     sys.exit(app.exec_())

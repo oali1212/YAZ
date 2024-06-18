@@ -1,8 +1,8 @@
 import sys
-from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QTableWidget, QTableWidgetItem, QMessageBox
-from PyQt5.QtGui import QFont
-from PyQt5.QtCore import Qt
-from configparser import ConfigParser
+from PyQt5.QtWidgets import *
+from PyQt5.QtGui import *
+from PyQt5.QtCore import *
+from configparser import *
 from backend_functions import YAZ
 
 
@@ -62,9 +62,9 @@ class CustomersPage(QWidget):
 
 
     def back_to_home(self):
-        self.close()
+        
         self.parent.showMaximized()
-
+        self.close()
     def add_client(self):
         row_position = self.table.rowCount()
         # Add your code to handle adding a new client
@@ -81,8 +81,8 @@ class CustomersPage(QWidget):
         QMessageBox.information(None, "Success", "Customers saved successfully")
 
 
-if __name__ == '__main__':
-    app = QApplication(sys.argv)
-    window = CustomersPage('')
-    window.show()
-    sys.exit(app.exec_())
+# if __name__ == '__main__':
+#     app = QApplication(sys.argv)
+#     window = CustomersPage('')
+#     window.show()
+#     sys.exit(app.exec_())

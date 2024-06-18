@@ -291,8 +291,9 @@ class NewBillPage(QWidget):
         self.total_price_label.setText(f"Total Price: {self.total_price} EGP")
 
     def back_to_home(self):
-        self.close()
+        
         self.parent.showMaximized()
+        self.close()
 
 
     def convert_image_to_pdf(self,image_path, pdf_path):
@@ -329,7 +330,6 @@ class NewBillPage(QWidget):
             if retval != True: 
                 
                 QMessageBox.warning(None, "Warning: File Access Error", retval + '\nPlease Close the file if it is open')
-                app.exec_()
                 return False
             ok_msg = QMessageBox()
             ok_msg.setIcon(QMessageBox.Information)
@@ -401,9 +401,9 @@ class DiscountDialog(QDialog):
     
 
 
-if __name__ == '__main__':
-    app = QApplication(sys.argv)
-    window = NewBillPage('','asdas')
+# if __name__ == '__main__':
+#     app = QApplication(sys.argv)
+#     window = NewBillPage('','asdas')
 
-    window.showMaximized()
-    sys.exit(app.exec_())
+#     window.showMaximized()
+#     sys.exit(app.exec_())
