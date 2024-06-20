@@ -3,7 +3,7 @@ import pickle
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
-
+from backend_functions import YAZ
 class SettingsPage(QWidget):
     def __init__(self, parent=None):
         super().__init__()
@@ -80,13 +80,19 @@ class SettingsPage(QWidget):
         self.close()
     def load_users(self):
         try:
-            with open('users.bin', 'rb') as f:
+            yaz = YAZ()
+            users_file = 'users.bin'
+            users_file = yaz.get_relink(users_file)
+            with open(users_file, 'rb') as f:
                 return pickle.load(f)
         except (FileNotFoundError, EOFError):
             return {}
 
     def save_users(self):
-        with open('users.bin', 'wb') as f:
+        yaz = YAZ()
+        users_file = 'users.bin'
+        users_file = yaz.get_relink(users_file)
+        with open(users_file, 'wb') as f:
             pickle.dump(self.users, f)
 
     def add_user(self):

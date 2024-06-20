@@ -14,9 +14,11 @@ class CustomersPage(QWidget):
         self.setGeometry(100, 100, 800, 600)  # Set window size
         self.setStyleSheet("background-color: #F5F5DC;")  # Background color
 
-        self.config_file = 'customers.ini'
+        self.yaz = YAZ() 
+        self.setting_file = "settings.ini"
+        self.setting_file = self.yaz.get_relink(self.setting_file)
         self.config = ConfigParser()
-        self.config.read(self.config_file)
+        self.config.read(self.setting_file)
 
         main_layout = QVBoxLayout()
 
@@ -45,11 +47,12 @@ class CustomersPage(QWidget):
         title.setEnabled(False)
         main_layout.addWidget(title, alignment=Qt.AlignCenter)
 
-        self.clients_file = "customers.ini"
+        self.customers_file  = "customers.ini"
+        self.customers_file = self.yaz.get_relink(self.customers_file)
         # Table
         yaz = YAZ() 
 
-        self.table = yaz.create_customers_table(self.clients_file)
+        self.table = yaz.create_customers_table(self.customers_file)
         main_layout.addWidget(self.table)
 
         self.setLayout(main_layout)
@@ -77,7 +80,7 @@ class CustomersPage(QWidget):
     def save_all(self):
         yaz = YAZ() 
         #print(self.clients_file)
-        yaz.update_ini_from_table(self.table, self.clients_file)
+        yaz.update_ini_from_table(self.table, self.customers_file)
         QMessageBox.information(None, "Success", "Customers saved successfully")
 
 

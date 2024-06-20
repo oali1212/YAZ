@@ -4,7 +4,7 @@ from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 import pickle
 from home_page import HomePage
-
+from backend_functions import YAZ
 class LoginWindow(QWidget):
     def __init__(self):
         super().__init__()
@@ -87,8 +87,12 @@ class LoginWindow(QWidget):
         msg.exec_()
 
     def load_users(self):
+        yaz = YAZ()
         try:
-            with open('users.bin', 'rb') as f:
+            
+            users_file = 'users.bin'
+            users_file = yaz.get_relink(users_file)
+            with open(users_file, 'rb') as f:
                 return pickle.load(f)
         except (FileNotFoundError, EOFError):
             return {}

@@ -9,7 +9,7 @@ from PyQt5.QtGui import QFont
 import math
 from datetime import datetime
 import pandas as pd
-
+import sys
 class YAZ:
 
 
@@ -21,7 +21,10 @@ class YAZ:
 
     def create_main_sheet(self):
         # Define the path to save the workbook
-        file_path = './Customers Bills/main_sheet.xlsx'
+        file_path = 'Customers Bills/main_sheet.xlsx'
+        yaz = YAZ()
+        ini_file = "settings.ini"
+        ini_file = yaz.get_relink(ini_file)
         
         # Create a workbook and select the active worksheet
         wb = Workbook()
@@ -60,8 +63,17 @@ class YAZ:
 
     def append_row_to_main_sheet(self, row_data):
         # Define the path to save the workbook
-        directory_path = './Customers Bills'
-        file_path = os.path.join(directory_path, 'main_sheet.xlsx')
+        directory_path = 'Customers Bills'
+        file_name = 'main_sheet.xlsx'
+
+        # Create an instance of the YAZ class
+        yaz = YAZ()
+
+        # Join directory_path and file_name to form file_path
+        file_path = os.path.join(directory_path, file_name)
+
+        # Resolve the absolute path using get_relink method
+        resolved_file_path = yaz.get_relink(file_path)
         
         # Check if the row has the correct length
         if len(row_data) != len(self.main_sheet_titles):
@@ -382,8 +394,16 @@ class YAZ:
 
 
 
+    def get_relink(self,link):
+        # determine if application is a script file or frozen exe
+        if getattr(sys, 'frozen', False):
+            application_path = os.path.dirname(sys.executable)
+        elif __file__:
+            application_path = os.path.dirname(__file__)
 
+        config_path = os.path.join(application_path, link)
 
+        return config_path
 # yaz.create_main_sheet()
 # yaz.append_row_to_main_sheet([1,2223232,3,4,5,6,7,8])
 # yaz.append_row_to_main_sheet([1,2222,3,4,5,6,7,8])

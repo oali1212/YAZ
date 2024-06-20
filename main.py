@@ -3,7 +3,7 @@ import os
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
-
+from backend_functions import YAZ
 from pre_login import PreLogin
 
 
@@ -13,7 +13,8 @@ class Main():
 
     def __init__(self):
 
-        
+
+
         self.app = QApplication(sys.argv)
         self.pre_login = PreLogin()
         self.pre_login.show()
@@ -24,7 +25,10 @@ class Main():
 
         
         
-        required_files = ['users.bin', 'settings.ini', 'customers.ini'] 
+        yaz = YAZ() 
+
+        required_files = [yaz.get_relink('users.bin'), yaz.get_relink('settings.ini'), yaz.get_relink('customers.ini')] 
+
         missing_files = [file for file in required_files if not os.path.exists(file)]
         if missing_files:
                 QMessageBox.critical(None, "Missing Files", f"The following files are missing:\n\n{', '.join(missing_files)}\n\nPlease create them to use the application.")

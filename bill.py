@@ -12,8 +12,9 @@ from reportlab.pdfgen import canvas
 class TabWindow(QWidget):
     def __init__(self, name):
         super().__init__()
-
+        self.yaz = YAZ() 
         self.setting_file = "settings.ini"
+        self.setting_file = self.yaz.get_relink(self.setting_file)
         self.name = name 
         self.section = self.name.lower() 
         self.setWindowTitle(f"{name} Selection")
@@ -52,6 +53,7 @@ class NewBillPage(QWidget):
         super().__init__()
         self.parent = parent
         self.user = user
+        self.yaz = YAZ() 
         self.setWindowTitle("New Bill")
         self.setStyleSheet("background-color: #F5F5DC;")  # Background color
         self.timer = QTimer()  # Create a QTimer instance
@@ -117,6 +119,7 @@ class NewBillPage(QWidget):
                 add_button.clicked.connect(lambda _, row=row,: self.add_button_clicked(row, self.current_tab))
 
         self.customers_file  = "customers.ini"
+        self.customers_file = self.yaz.get_relink(self.customers_file)
         # Right Layout
         self.right_layout = QVBoxLayout()
         self.right_layout.setAlignment(Qt.AlignTop)

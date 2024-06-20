@@ -7,7 +7,15 @@ from configparser import ConfigParser
 from backend_functions import YAZ
 from PyQt5.QtGui import *
 import time
+import os
 
+        # determine if application is a script file or frozen exe
+if getattr(sys, 'frozen', False):
+        application_path = os.path.dirname(sys.executable)
+elif __file__:
+        application_path = os.path.dirname(__file__)
+
+     
 class facialPage(QWidget):
     def __init__(self,parent):
         super().__init__()
@@ -16,7 +24,9 @@ class facialPage(QWidget):
         
         self.setStyleSheet("background-color: #F5F5DC;")  # Background color
 
-        self.settings_file = "settings.ini"
+        self.yaz = YAZ() 
+        self.setting_file = "settings.ini"
+        self.setting_file = self.yaz.get_relink(self.setting_file)
         self.section = "facial"
         self.main_layout = QVBoxLayout()
         
@@ -48,7 +58,8 @@ class facialPage(QWidget):
         self.save_button.setDisabled(True)
 
         yaz = YAZ()
-        ini_file = 'settings.ini'  # Replace with your actual ini file path
+        ini_file = "settings.ini"
+        ini_file = yaz.get_relink(ini_file)
         section = 'facial'  # Replace with your actual section
         self.table = yaz.create_price_table(ini_file, section)
 
@@ -89,8 +100,8 @@ class facialPage(QWidget):
             name = name.replace("+", "__")
             yaz = YAZ() 
 
-            yaz.add_service(self.settings_file, self.section, name, price)
-            self.new_table = yaz.create_price_table(self.settings_file, self.section)
+            yaz.add_service(self.setting_file, self.section, name, price)
+            self.new_table = yaz.create_price_table(self.setting_file, self.section)
             if self.new_table: 
                 
                 self.table.setParent(None)
@@ -113,11 +124,11 @@ class facialPage(QWidget):
 
         if response == QMessageBox.Yes:
             yaz = YAZ()
-            yaz.delete_service(self.settings_file,self.section,index+1)
+            yaz.delete_service(self.setting_file,self.section,index+1)
             
             ##print(f"i am trying to delete {name}")
             self.table.deleteLater()
-            self.table = yaz.create_price_table(self.settings_file, self.section)
+            self.table = yaz.create_price_table(self.setting_file, self.section)
             if self.table: 
                 
 
@@ -187,7 +198,7 @@ class facialPage(QWidget):
 
 
         yaz = YAZ() 
-        yaz.save_services(self.settings_file,self.section,prices_list)
+        yaz.save_services(self.setting_file,self.section,prices_list)
         self.add_table_bindings()
 
         error_dialog = QMessageBox(self)

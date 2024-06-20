@@ -7,7 +7,7 @@ from configparser import ConfigParser
 from backend_functions import YAZ
 from PyQt5.QtGui import *
 import time
-
+import os
 
 class pedicurePage(QWidget):
     def __init__(self,parent):
@@ -17,7 +17,9 @@ class pedicurePage(QWidget):
         
         self.setStyleSheet("background-color: #F5F5DC;")  # Background color
 
-        self.settings_file = "settings.ini"
+        self.yaz = YAZ() 
+        self.setting_file = "settings.ini"
+        self.setting_file = self.yaz.get_relink(self.setting_file)
         self.section = "pedicure"
         self.main_layout = QVBoxLayout()
         
@@ -49,7 +51,8 @@ class pedicurePage(QWidget):
         
 
         yaz = YAZ()
-        ini_file = 'settings.ini'  # Replace with your actual ini file path
+        ini_file = "settings.ini"
+        ini_file = yaz.get_relink(ini_file)    # Replace with your actual ini file path
         section = 'pedicure'  # Replace with your actual section
         self.table = yaz.create_price_table(ini_file, section)
 
@@ -90,8 +93,8 @@ class pedicurePage(QWidget):
             name = name.replace("+", "__")
             yaz = YAZ() 
 
-            yaz.add_service(self.settings_file, self.section, name, price)
-            self.new_table = yaz.create_price_table(self.settings_file, self.section)
+            yaz.add_service(self.setting_file, self.section, name, price)
+            self.new_table = yaz.create_price_table(self.setting_file, self.section)
             if self.new_table: 
                 
                 self.table.setParent(None)
@@ -114,11 +117,11 @@ class pedicurePage(QWidget):
 
         if response == QMessageBox.Yes:
             yaz = YAZ()
-            yaz.delete_service(self.settings_file,self.section,index+1)
+            yaz.delete_service(self.setting_file,self.section,index+1)
             
             ##print(f"i am trying to delete {name}")
             self.table.deleteLater()
-            self.table = yaz.create_price_table(self.settings_file, self.section)
+            self.table = yaz.create_price_table(self.setting_file, self.section)
             if self.table: 
                 
 
@@ -184,7 +187,7 @@ class pedicurePage(QWidget):
 
 
         yaz = YAZ() 
-        yaz.save_services(self.settings_file,self.section,prices_list)
+        yaz.save_services(self.setting_file,self.section,prices_list)
         self.add_table_bindings()
 
         error_dialog = QMessageBox(self)

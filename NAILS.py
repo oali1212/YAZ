@@ -7,7 +7,7 @@ from configparser import ConfigParser
 from backend_functions import YAZ
 from PyQt5.QtGui import *
 import time
-
+import os
 
 class nailsPage(QWidget):
     def __init__(self,parent):
@@ -16,8 +16,9 @@ class nailsPage(QWidget):
         self.setWindowTitle("Nails Selection")
         
         self.setStyleSheet("background-color: #F5F5DC;")  # Background color
-
+        self.yaz= YAZ()
         self.settings_file = "settings.ini"
+        self.settings_file = self.yaz.get_relink(self.settings_file)
         self.section = "nails"
         self.main_layout = QVBoxLayout()
         
@@ -49,7 +50,9 @@ class nailsPage(QWidget):
         
 
         yaz = YAZ()
-        ini_file = 'settings.ini'  # Replace with your actual ini file path
+
+        ini_file = "settings.ini"
+        ini_file = yaz.get_relink(ini_file)  # Replace with your actual ini file path
         section = 'nails'  # Replace with your actual section
         self.table = yaz.create_price_table(ini_file, section)
 

@@ -39,7 +39,9 @@ class ReportsPage(QWidget):
         self.setLayout(main_layout)
         self.back_button.clicked.connect(self.back_to_home)
 
-        self.excel_path = ".//Customers Bills//main_sheet.xlsx"
+        self.excel_path = "Customers Bills//main_sheet.xlsx"
+        yaz = YAZ()
+        self.excel_path = yaz.get_relink(self.excel_path)
         yaz = YAZ() 
         self.table = yaz.get_table_from_excel(self.excel_path)
         if self.table:

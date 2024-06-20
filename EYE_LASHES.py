@@ -7,7 +7,7 @@ from configparser import ConfigParser
 from backend_functions import YAZ
 from PyQt5.QtGui import *
 import time
-
+import os
 
 class eyelashesPage(QWidget):
     def __init__(self,parent):
@@ -16,8 +16,9 @@ class eyelashesPage(QWidget):
         self.setWindowTitle("Eye Lashes Selection")
         
         self.setStyleSheet("background-color: #F5F5DC;")  # Background color
-
-        self.settings_file = "settings.ini"
+        self.yaz = YAZ() 
+        self.setting_file = "settings.ini"
+        self.setting_file = self.yaz.get_relink(self.setting_file)
         self.section = "eye lashes"
         self.main_layout = QVBoxLayout()
         
@@ -49,7 +50,9 @@ class eyelashesPage(QWidget):
         
 
         yaz = YAZ()
-        ini_file = 'settings.ini'  # Replace with your actual ini file path
+
+        ini_file = "settings.ini"
+        ini_file = yaz.get_relink(ini_file)
         section = 'eye lashes'  # Replace with your actual section
         self.table = yaz.create_price_table(ini_file, section)
 
@@ -64,13 +67,14 @@ class eyelashesPage(QWidget):
         self.main_layout.addWidget(self.add_button, 0, Qt.AlignRight)
         self.main_layout.addWidget(self.edit_button, 1, Qt.AlignRight)
         self.main_layout.addWidget(self.save_button, 2, Qt.AlignRight)
-        self.save_button.clicked.connect(self.save_service)
 
         self.setLayout(self.main_layout)
         self.showMaximized()
 
         self.add_button.clicked.connect(self.show_add_service_dialog)
         self.back_button.clicked.connect(self.back_to_home)
+        self.edit_button.clicked.connect(self.edit_service)
+        self.save_button.clicked.connect(self.save_service)
         self.add_table_bindings()
 
     def add_table_bindings(self):
@@ -88,8 +92,8 @@ class eyelashesPage(QWidget):
             name = name.replace("+", "__")
             yaz = YAZ() 
 
-            yaz.add_service(self.settings_file, self.section, name, price)
-            self.new_table = yaz.create_price_table(self.settings_file, self.section)
+            yaz.add_service(self.setting_file, self.section, name, price)
+            self.new_table = yaz.create_price_table(self.setting_file, self.section)
             if self.new_table: 
                 
                 self.table.setParent(None)
@@ -112,11 +116,11 @@ class eyelashesPage(QWidget):
 
         if response == QMessageBox.Yes:
             yaz = YAZ()
-            yaz.delete_service(self.settings_file,self.section,index+1)
+            yaz.delete_service(self.setting_file,self.section,index+1)
             
             ##print(f"i am trying to delete {name}")
             self.table.deleteLater()
-            self.table = yaz.create_price_table(self.settings_file, self.section)
+            self.table = yaz.create_price_table(self.setting_file, self.section)
             if self.table: 
                 
 
@@ -184,7 +188,7 @@ class eyelashesPage(QWidget):
 
 
         yaz = YAZ() 
-        yaz.save_services(self.settings_file,self.section,prices_list)
+        yaz.save_services(self.setting_file,self.section,prices_list)
         self.add_table_bindings()
 
         error_dialog = QMessageBox(self)
@@ -241,7 +245,7 @@ class AddServiceDialog(QDialog):
 
 
 # if __name__ == '__main__':
-#     app = QApplication(sys.argv)
-#     window = eyelashesPage('')
-#     window.show()
-#     sys.exit(app.exec_())
+    app = QApplication(sys.argv)
+    window = eyelashesPage('')
+    window.show()
+    sys.exit(app.exec_())
