@@ -245,7 +245,7 @@ class AddServiceDialog(QDialog):
 
 
 # if __name__ == '__main__':
-    app = QApplication(sys.argv)
-    window = eyelashesPage('')
-    window.show()
-    sys.exit(app.exec_())
+    # app = QApplication(sys.argv)
+    # window = eyelashesPage('')
+    # window.show()
+    # sys.exit(app.exec_())

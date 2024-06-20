@@ -18,13 +18,11 @@ class YAZ:
 
         self.main_sheet_titles = ["Date", "Time", "Unique ID", "Transaction Type", "Transaction Description","Amount (EGP)",    "Logged by:" , "Notes"]
 
-
+        self.excel_file_path = 'Customers Bills//main_sheet.xlsx'
+        self.excel_file_path = self.get_relink(self.excel_file_path)
     def create_main_sheet(self):
         # Define the path to save the workbook
-        file_path = 'Customers Bills/main_sheet.xlsx'
-        yaz = YAZ()
-        ini_file = "settings.ini"
-        ini_file = yaz.get_relink(ini_file)
+
         
         # Create a workbook and select the active worksheet
         wb = Workbook()
@@ -39,7 +37,7 @@ class YAZ:
    
         # Save the workbook
         try:
-            wb.save(file_path)
+            wb.save(self.excel_file_path)
             return True
         except Exception as e:
             return str(e)
@@ -64,27 +62,19 @@ class YAZ:
     def append_row_to_main_sheet(self, row_data):
         # Define the path to save the workbook
         directory_path = 'Customers Bills'
-        file_name = 'main_sheet.xlsx'
+        directory_path = self.get_relink(directory_path)
 
-        # Create an instance of the YAZ class
-        yaz = YAZ()
-
-        # Join directory_path and file_name to form file_path
-        file_path = os.path.join(directory_path, file_name)
-
-        # Resolve the absolute path using get_relink method
-        resolved_file_path = yaz.get_relink(file_path)
         
         # Check if the row has the correct length
         if len(row_data) != len(self.main_sheet_titles):
             return False
         
         # Check if the workbook exists, if not create it
-        if not os.path.exists(file_path):
+        if not os.path.exists(self.excel_file_path):
             self.create_main_sheet()
         
         # Load the workbook and select the active worksheet
-        wb = load_workbook(file_path)
+        wb = load_workbook(self.excel_file_path)
         ws = wb.active
         self.resize_columns_to_fit_content(ws)   
         # Append the row data
@@ -92,7 +82,7 @@ class YAZ:
         
         # Save the workbook
         try:
-            wb.save(file_path)
+            wb.save(self.excel_file_path)
             return True
         except Exception as e: 
             return str(e)
@@ -101,18 +91,19 @@ class YAZ:
 
     def delete_row_by_id(self, value):
         # Define the path to save the workbook
-        directory_path = './Customers Bills'
-        file_path = os.path.join(directory_path, 'main_sheet.xlsx')
+        directory_path = 'Customers Bills'
+        directory_path = self.get_relink(directory_path)
+
         
         # Check if the workbook exists
-        if not os.path.exists(file_path):
-            print(f"Workbook does not exist at path: {file_path}")
+        if not os.path.exists(self.excel_file_path):
+            print(f"Workbook does not exist at path: {self.excel_file_path}")
             return False
         
-        print(f"Loading workbook from path: {file_path}")
+        print(f"Loading workbook from path: {self.excel_file_path}")
         
         # Load the workbook and select the active worksheet
-        wb = load_workbook(file_path)
+        wb = load_workbook(self.excel_file_path)
         ws = wb.active
         
         print(f"Searching for value '{value}' in worksheet...")
@@ -130,8 +121,8 @@ class YAZ:
             ws.delete_rows(row_to_delete)
             print(f"Deleted row {row_to_delete} containing value '{value}'")
             try:
-                wb.save(file_path)
-                print(f"Workbook saved successfully at path: {file_path}")
+                wb.save(self.excel_file_path)
+                print(f"Workbook saved successfully at path: {self.excel_file_path}")
                 return True
             except Exception as e:
                 error_message = str(e)
@@ -288,10 +279,10 @@ class YAZ:
         with open(ini_file, 'w') as config_file:
             config.write(config_file)
 
-    def delete_service(self, file_path, section, index):
+    def delete_service(self, path, section, index):
         index = int(index)
         config = ConfigParser()
-        config.read(file_path)
+        config.read(path)
 
         if section not in config:
             raise ValueError(f"Section '{section}' not found in the INI file.")
@@ -303,12 +294,12 @@ class YAZ:
         option_to_delete = options[index - 1]  # Adjust index to 0-based index
         del config[section][option_to_delete]
 
-        with open(file_path, 'w') as configfile:
+        with open(self.excel_file_path, 'w') as configfile:
             config.write(configfile)
 
-    def save_services(self, file_path, section, prices_list: list):
+    def save_services(self, path, section, prices_list: list):
         config = ConfigParser()
-        config.read(file_path)
+        config.read(path)
 
         if section not in config:
             raise ValueError(f"Section '{section}' not found in the INI file.")
@@ -323,7 +314,7 @@ class YAZ:
             config[section][option_to_edit] = str(price)
         
         # Write changes back to the file
-        with open(file_path, 'w') as configfile:
+        with open(self.excel_file_path, 'w') as configfile:
             config.write(configfile)
 
     def save_table_to_excel(self, table: QTableWidget, name: str):
@@ -341,6 +332,7 @@ class YAZ:
         
         # Check if folder for Customers Bills exists, if not create it
         customers_bills_folder = "Customers Bills"
+        customers_bills_folder = self.get_relink(customers_bills_folder)
         if not os.path.exists(customers_bills_folder):
             os.makedirs(customers_bills_folder)
         
@@ -352,17 +344,17 @@ class YAZ:
         # Save with a timestamped name
         timestamp = datetime.now().strftime("%d_%m_%y_%H_%M_%S")
         file_name = f"{name}_{timestamp}.xlsx"
-        file_path = os.path.join(customer_folder, file_name)
-        df.to_excel(file_path, index=False)
-        #print(f"File saved as {file_path}")
+        user_file_path = os.path.join(customers_bills_folder,name, file_name)
+        df.to_excel(user_file_path, index=False)
+        #print(f"File saved as {self.excel_file_path}")
         # Open Microsoft Excel 
 
-    def get_table_from_excel(self, file_path):
-        if not os.path.exists(file_path):
+    def get_table_from_excel(self, path):
+        if not os.path.exists(path):
             return None
 
         try:
-            wb = load_workbook(file_path)
+            wb = load_workbook(path)
             sheet = wb.active  # Get the active sheet (first sheet by default)
 
             rows = sheet.iter_rows(values_only=True)
@@ -392,8 +384,6 @@ class YAZ:
         
 
 
-
-
     def get_relink(self,link):
         # determine if application is a script file or frozen exe
         if getattr(sys, 'frozen', False):
@@ -404,6 +394,9 @@ class YAZ:
         config_path = os.path.join(application_path, link)
 
         return config_path
+
+
+
 # yaz.create_main_sheet()
 # yaz.append_row_to_main_sheet([1,2223232,3,4,5,6,7,8])
 # yaz.append_row_to_main_sheet([1,2222,3,4,5,6,7,8])

@@ -303,6 +303,9 @@ class NewBillPage(QWidget):
         # Create a canvas
         c = canvas.Canvas(pdf_path, pagesize=letter)
         
+        yaz = YAZ() 
+        image_path = yaz.get_relink(image_path)
+        pdf_path = yaz.get_relink(pdf_path)
         # Draw the image on the canvas
         c.drawImage(image_path, 0, 0, width=letter[0], height=letter[1])
         
@@ -336,7 +339,7 @@ class NewBillPage(QWidget):
                 return False
             ok_msg = QMessageBox()
             ok_msg.setIcon(QMessageBox.Information)
-            ok_msg.setText(f"Bill for {name} Saved successfully")
+            ok_msg.setText(f"Bill for {name} Saved successfully.")
             ok_msg.setWindowTitle("Saving")
             ok_msg.exec_()
             # Calculate screenshot dimensions and position
@@ -374,8 +377,11 @@ class NewBillPage(QWidget):
             date_str = date_str.replace("/","_")
             time_str = time_str.replace(":","_") 
             name = str(name)
-            image_path = ".//" + "Customers Bills" + "//" + name +"//"+ f"{name}_{date_str}_{time_str}.jpg"
-            pdf_path = ".//" + "Customers Bills" + "//" + name +"//"+ f"{name}_{date_str}_{time_str}.pdf"
+            image_path =  "Customers Bills" + "\\" + name +"\\"+ f"{name}_{date_str}_{time_str}.jpg"
+            pdf_path =  "Customers Bills" + "\\" + name +"\\"+ f"{name}_{date_str}_{time_str}.pdf"
+            yaz = YAZ()
+            image_path = yaz.get_relink(image_path)
+            pdf_path = yaz.get_relink(pdf_path)
             screenshot.save(image_path)
             self.convert_image_to_pdf(image_path, pdf_path)
             os.remove(image_path)
@@ -404,9 +410,9 @@ class DiscountDialog(QDialog):
     
 
 
-# if __name__ == '__main__':
-#     app = QApplication(sys.argv)
-#     window = NewBillPage('','asdas')
+if __name__ == '__main__':
+    app = QApplication(sys.argv)
+    window = NewBillPage('','asdas')
 
-#     window.showMaximized()
-#     sys.exit(app.exec_())
+    window.showMaximized()
+    sys.exit(app.exec_())
