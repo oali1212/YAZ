@@ -134,7 +134,7 @@ class YAZ:
     def create_price_table(self, ini_file, section):
         config = ConfigParser()
         config.read(ini_file)
-        
+
         if section not in config:
             ##print(f"Section {section} not found in the INI file.")
             return None
@@ -283,7 +283,7 @@ class YAZ:
         index = int(index)
         config = ConfigParser()
         config.read(path)
-
+ 
         if section not in config:
             raise ValueError(f"Section '{section}' not found in the INI file.")
 
@@ -294,9 +294,9 @@ class YAZ:
         option_to_delete = options[index - 1]  # Adjust index to 0-based index
         del config[section][option_to_delete]
 
-        with open(self.excel_file_path, 'w') as configfile:
+        with open(path, 'w') as configfile:
             config.write(configfile)
-
+        return True
     def save_services(self, path, section, prices_list: list):
         config = ConfigParser()
         config.read(path)

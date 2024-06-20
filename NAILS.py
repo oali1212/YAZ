@@ -114,22 +114,23 @@ class nailsPage(QWidget):
         msg_box.setDefaultButton(QMessageBox.No)
     
         response = msg_box.exec_()       
-        msg_box = QMessageBox()
+        
 
         if response == QMessageBox.Yes:
             yaz = YAZ()
-            yaz.delete_service(self.settings_file,self.section,index+1)
-            
-            ##print(f"i am trying to delete {name}")
+            retval= yaz.delete_service(self.settings_file,self.section,index+1)
+            if not retval: 
+                return False
+            print(f"i am trying to delete {name}")
+
             self.table.deleteLater()
             self.table = yaz.create_price_table(self.settings_file, self.section)
             if self.table: 
                 
-
+                print("executed")
                 self.table_layout.addWidget(self.table)       
                 self.add_table_bindings()#need'nt
-
-                
+      
     def back_to_home(self):
         self.close()
         self.parent.showMaximized()
@@ -246,8 +247,8 @@ class AddServiceDialog(QDialog):
         error_dialog.exec_()
 
 
-# if __name__ == '__main__':
-#     app = QApplication(sys.argv)
-#     window = nailsPage('')
-#     window.show()
-#     sys.exit(app.exec_())
+if __name__ == '__main__':
+    app = QApplication(sys.argv)
+    window = nailsPage('')
+    window.show()
+    sys.exit(app.exec_())
