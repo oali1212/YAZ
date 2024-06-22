@@ -410,9 +410,9 @@ class DiscountDialog(QDialog):
     
 
 
-if __name__ == '__main__':
-    app = QApplication(sys.argv)
-    window = NewBillPage('','asdas')
+# if __name__ == '__main__':
+#     app = QApplication(sys.argv)
+#     window = NewBillPage('','asdas')
 
-    window.showMaximized()
-    sys.exit(app.exec_())
+#     window.showMaximized()
+#     sys.exit(app.exec_())

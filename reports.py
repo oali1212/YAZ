@@ -18,7 +18,7 @@ class ReportsPage(QWidget):
 
         # Top layout with back, minimize, and close buttons
         top_layout = QHBoxLayout()
-        self.central_layout = QVBoxLayout() 
+        self.central_layout = QHBoxLayout() 
         self.back_button = QPushButton("◀")
         self.back_button.setFixedSize(100, 40)
         self.back_button.setStyleSheet("font-size: 35px;")       
@@ -44,6 +44,9 @@ class ReportsPage(QWidget):
         self.excel_path = yaz.get_relink(self.excel_path)
         yaz = YAZ() 
         self.table = yaz.get_table_from_excel(self.excel_path)
+
+        # self.table.verticalHeader().setSectionResizeMode(QHeaderView.Stretch)
+
         if self.table:
             self.central_layout.addWidget(self.table)
             main_layout.addLayout(self.central_layout)
@@ -54,8 +57,10 @@ class ReportsPage(QWidget):
                 self.table.setCellWidget(row,8,del_button)
                 del_button.clicked.connect(lambda _, r=row : self.delete_clicked(r))
                     
-                
-     
+        else:
+            self.central_layout.addWidget(QLabel("No Reports Found!\nCreate new bill (from New Bill section) to see reports."),alignment=Qt.AlignCenter)
+            main_layout.addLayout(self.central_layout)
+            self.add_button.setDisabled(True)
                 
     
     def back_to_home(self):
@@ -115,6 +120,7 @@ class ReportsPage(QWidget):
                 temp_table = yaz.get_table_from_excel(self.excel_path)
                 self.table.deleteLater()
                 self.table = temp_table
+                
                 self.central_layout.addWidget(self.table)
                 self.rebind_delete_buttons()
             else: 

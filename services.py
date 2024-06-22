@@ -4,10 +4,7 @@ from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QVBoxLayout, QHBoxLay
 from PyQt5.QtGui import QIcon, QPixmap, QPainter, QBrush, QPen
 from PyQt5.QtCore import Qt, QSize, QRectF
 
-from facial import facialPage
-from eye_lashes import eyelashesPage
-from pedicure import pedicurePage
-from nails import nailsPage
+from generic_macro import GenericServicePage
 
 class CircularButton(QPushButton):
     def __init__(self, image_path, size):
@@ -51,7 +48,7 @@ class ServiceWidget(QWidget):
         self.setLayout(layout)
 
 class ServicesPage(QWidget):
-    def __init__(self,parent):
+    def __init__(self, parent):
         super().__init__()
         self.parent = parent
         self.setWindowTitle("Services Page")
@@ -67,8 +64,7 @@ class ServicesPage(QWidget):
         
         self.back_button = QPushButton("◀")
         self.back_button.setFixedSize(100, 40)
-        self.back_button.setStyleSheet("font-size: 35px;")       
-
+        self.back_button.setStyleSheet("font-size: 35px;")
         self.back_button.clicked.connect(self.back_to_home)  # Close the window when the button is clicked
 
         top_layout.addWidget(self.back_button, alignment=Qt.AlignLeft)
@@ -97,78 +93,44 @@ class ServicesPage(QWidget):
                 background-color: rgba(0, 0, 0, 50%);
             }
         """
-        # Service Widget 1
-        nails_image_path = os.path.abspath(".//img//nails.jpg")
-        self.nails_button = ServiceWidget(nails_image_path, "Nails", 150)
-        middle_layout.addWidget(self.nails_button, alignment=Qt.AlignCenter)
-        self.nails_button.button.setCursor(Qt.PointingHandCursor)
-        self.nails_button.setStyleSheet(self.style)
-        self.nails_button.button.clicked.connect(self.go_to_nails)  # Connect the button click event
-        
-        # Service Widget 2
-        pedicure_image_path = os.path.abspath(".//img//pedicure.jpg")
-        self.pedicure_widget = ServiceWidget(pedicure_image_path, "Pedicure", 150)
-        middle_layout.addWidget(self.pedicure_widget, alignment=Qt.AlignCenter)
-        self.pedicure_widget.button.setCursor(Qt.PointingHandCursor)
-        self.pedicure_widget.setStyleSheet(self.style)
-        self.pedicure_widget.button.clicked.connect(self.go_to_pedicure)  # Connect the button click event
 
-        # Service Widget 3
-        facial_image_path = os.path.abspath(".//img//facial.jpg")
-        self.facial_widget = ServiceWidget(facial_image_path, "Facial", 150)
-        middle_layout.addWidget(self.facial_widget, alignment=Qt.AlignCenter)
-        self.facial_widget.button.setCursor(Qt.PointingHandCursor)
-        self.facial_widget.setStyleSheet(self.style)
-        self.facial_widget.button.clicked.connect(self.go_to_facial)  # Connect the button click event
+        # Define the service information
+        self.services_list = ['Nails', 'Pedicure', 'Facial', 'Eye lashes']
 
-        # Service Widget 4
-        eyelashes_image_path = os.path.abspath(".//img//eyelashes.jpg")
-        self.eye_widget = ServiceWidget(eyelashes_image_path, "Eyelashes", 150)
-        middle_layout.addWidget(self.eye_widget, alignment=Qt.AlignCenter)
-        self.eye_widget.button.setCursor(Qt.PointingHandCursor)
-        self.eye_widget.setStyleSheet(self.style)
-        self.eye_widget.button.clicked.connect(self.go_to_eyelashes)  # Connect the button click event
+        services = [
+            {"image": f".//img//{service.lower().replace(' ', '')}.jpg", "name": service}
+            for service in self.services_list
+        ]
+
+        # Create service widgets dynamically
+        for service in services:
+            image_path = os.path.abspath(service["image"])
+            widget = ServiceWidget(image_path, service["name"], 150)
+            middle_layout.addWidget(widget, alignment=Qt.AlignCenter)
+            widget.button.setCursor(Qt.PointingHandCursor)
+            widget.setStyleSheet(self.style)
+            widget.button.clicked.connect(lambda _, s=service: self.go_to_service(s["name"]))
 
         layout.addLayout(middle_layout)
-        
         layout.addSpacing(50)  # Move elements up
 
         # Bottom layout with Proceed Checkout button
         bottom_layout = QHBoxLayout()
-        
- 
-
         layout.addLayout(bottom_layout)
 
         self.setLayout(layout)
 
     def back_to_home(self):
-        
         self.parent.showMaximized()
         self.close()
-    def go_to_facial(self):
-        
-        self.facial = facialPage(self) 
-        self.facial.showMaximized()
+
+    def go_to_service(self, service_name):
+        self.generic_service_page = GenericServicePage(self, service_name)
+        self.generic_service_page.showMaximized()
         self.close()
-    # Define the functions that handle the button clicks
-    def go_to_nails(self):
-        
-        self.nails = nailsPage(self) 
-        self.nails.showMaximized()
-        self.close()
-    def go_to_pedicure(self):
-        
-        self.pedicure = pedicurePage(self) 
-        self.pedicure.showMaximized()
-        self.close()
-    def go_to_eyelashes(self):
-        
-        self.eye = eyelashesPage(self) 
-        self.eye.showMaximized()
-        self.close()
+
 # if __name__ == '__main__':
 #     app = QApplication(sys.argv)
 #     window = ServicesPage(' ')
-#     window.showMaximized()  # عرض النافذة بحجم الشاشة بالكامل
+#     window.showMaximized()  # Display the window in full screen
 #     sys.exit(app.exec_())

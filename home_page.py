@@ -53,6 +53,7 @@ class HomePage(QWidget):
         self.services_button.setText("Services")
         self.services_button.setFont(QFont("Arial", 15, QFont.Bold))
         self.services_button.setCursor(Qt.PointingHandCursor)
+        
         grid_layout.addWidget(self.services_button, 0, 0)
 
         # Button 2
@@ -73,6 +74,8 @@ class HomePage(QWidget):
         self.reports_button.setFont(QFont("Arial", 15, QFont.Bold))
         self.reports_button.setCursor(Qt.PointingHandCursor)
         grid_layout.addWidget(self.reports_button, 0, 2)
+        if not 'admin' in self.user:
+            self.reports_button.setDisabled(True)
 
         # Button 3
         self.customers_button = QPushButton()
@@ -111,6 +114,9 @@ class HomePage(QWidget):
         self.settings_button.setFont(QFont("Arial", 15, QFont.Bold))
         self.settings_button.setCursor(Qt.PointingHandCursor)
         grid_layout.addWidget(self.settings_button, 1, 2)
+        if not 'admin' in self.user:
+            self.settings_button.setDisabled(True)
+            
 
         # button 5
   

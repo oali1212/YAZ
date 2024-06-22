@@ -1,9 +1,10 @@
 import sys
 import pickle
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
-from PyQt5.QtCore import *
+from PyQt5.QtWidgets import QWidget, QApplication, QPushButton, QVBoxLayout, QHBoxLayout, QLabel, QGridLayout, QInputDialog, QMessageBox, QDialog, QComboBox, QDialogButtonBox
+from PyQt5.QtGui import QFont
+from PyQt5.QtCore import Qt
 from backend_functions import YAZ
+
 class SettingsPage(QWidget):
     def __init__(self, parent=None):
         super().__init__()
@@ -108,6 +109,9 @@ class SettingsPage(QWidget):
                     QMessageBox.information(self, 'Success', 'User added successfully!')
 
     def delete_user(self):
+        if len(self.users) == 1:
+            QMessageBox.warning(self, 'Error', 'At least one user must be registerd!')
+            return
         if not self.users:
             QMessageBox.warning(self, 'Error', 'No users to delete!')
             return
@@ -142,8 +146,8 @@ class SettingsPage(QWidget):
         return self.users.get(username) == password
     
     
-if __name__ == '__main__':
-    app = QApplication(sys.argv)
-    window = SettingsPage('')
-    window.show()
-    sys.exit(app.exec_())
+# if __name__ == '__main__':
+#     app = QApplication(sys.argv)
+#     window = SettingsPage('')
+#     window.show()
+#     sys.exit(app.exec_())

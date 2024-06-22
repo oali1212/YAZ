@@ -224,7 +224,7 @@ class YAZ:
         tableWidget.setHorizontalHeaderLabels(["Name", "#", "Last Date Vistied", "Phone Number", "Total Paid", "Email", "Heard about us from:"])
         tableWidget.setFixedWidth(1100)
         tableWidget.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
-        tableWidget.verticalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        # tableWidget.verticalHeader().setSectionResizeMode(QHeaderView.Stretch)
 
         return tableWidget
 
@@ -373,6 +373,9 @@ class YAZ:
                     table_widget.setItem(row_index, col_index, item)
                     item = table_widget.item(row_index,col_index)
                     item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)
+
+            table_widget.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+            table_widget.setStyleSheet("background-color: white;")
             return table_widget
         except Exception as e:
             msg = QMessageBox()

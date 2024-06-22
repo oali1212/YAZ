@@ -1,8 +1,7 @@
 import sys
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
-from PyQt5.QtCore import *
-from configparser import *
+from PyQt5.QtWidgets import QWidget, QApplication, QPushButton, QVBoxLayout, QHBoxLayout, QTableWidgetItem, QMessageBox, QTableWidget
+from PyQt5.QtCore import Qt
+from configparser import ConfigParser
 from backend_functions import YAZ
 
 
@@ -52,22 +51,51 @@ class CustomersPage(QWidget):
         # Table
         yaz = YAZ() 
 
-        self.table = yaz.create_customers_table(self.customers_file)
-        main_layout.addWidget(self.table)
-
+        self.table = yaz.create_customers_table(self.customers_file,)
+        table_layout = QHBoxLayout() 
+        table_layout.addWidget(self.table)
+        main_layout.addLayout(table_layout)
+        # main_layout.addWidget(self.table)
+        self.table.setColumnCount(self.table.columnCount() + 1)
+        self.table.setHorizontalHeaderItem(7, QTableWidgetItem("Delete"))
+        self.rebind_del()
         self.setLayout(main_layout)
+
+
+
+
 
         self.back_button.clicked.connect(self.back_to_home)
         self.add_button.clicked.connect(self.add_client)
         self.save_button.clicked.connect(self.save_all)
 
 
+    def not_editable(self):
+        for row in range(self.table.rowCount()):
+            for column in range(self.table.columnCount()):
+                item = self.table.item(row,column)
+                if item:
+                    item.setFlags(item.flags() ^ Qt.ItemIsEditable)  # Remove the editable flag
 
+    def rebind_del(self):
+        for row in range(self.table.rowCount()):
+
+            del_button = QPushButton("🗑️")
+            del_button.clicked.connect(lambda _, r=row: self.delete_row(r))
+
+            self.table.setCellWidget(row, 7,del_button)           
+
+            
+    def delete_row(self,row):
+        self.table.removeRow(row)
+        self.rebind_del()
 
     def back_to_home(self):
         
         self.parent.showMaximized()
         self.close()
+
+
     def add_client(self):
         row_position = self.table.rowCount()
         # Add your code to handle adding a new client
@@ -75,14 +103,14 @@ class CustomersPage(QWidget):
         # Fill the new row with empty strings
         for column in range(self.table.columnCount()):
             self.table.setItem(row_position, column, QTableWidgetItem(""))
-
+        self.rebind_del()
 
     def save_all(self):
         yaz = YAZ() 
         #print(self.clients_file)
         yaz.update_ini_from_table(self.table, self.customers_file)
         QMessageBox.information(None, "Success", "Customers saved successfully")
-
+        self.not_editable()
 
 # if __name__ == '__main__':
 #     app = QApplication(sys.argv)

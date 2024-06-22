@@ -9,21 +9,22 @@ from PyQt5.QtGui import *
 import time
 import os
 
-class pedicurePage(QWidget):
-    def __init__(self,parent):
+class GenericServicePage(QWidget):
+    def __init__(self,parent,name):
         super().__init__()
         self.parent = parent
-        self.setWindowTitle("pedicure Selection")
+        self.name = name
+        self.setWindowTitle(f"{self.name} Selection")
         
         self.setStyleSheet("background-color: #F5F5DC;")  # Background color
 
         self.yaz = YAZ() 
         self.setting_file = "settings.ini"
         self.setting_file = self.yaz.get_relink(self.setting_file)
-        self.section = "pedicure"
+        self.section = self.name.lower()
         self.main_layout = QVBoxLayout()
         
-        label = QLabel("pedicure Services")
+        label = QLabel(f"{self.name} Services")
         label.setStyleSheet("font-size: 30px; font-weight: 900; font-family: Comic Sans MS;")
 
         self.back_button = QPushButton("◀")
@@ -53,8 +54,8 @@ class pedicurePage(QWidget):
         yaz = YAZ()
         ini_file = "settings.ini"
         ini_file = yaz.get_relink(ini_file)    # Replace with your actual ini file path
-        section = 'pedicure'  # Replace with your actual section
-        self.table = yaz.create_price_table(ini_file, section)
+
+        self.table = yaz.create_price_table(ini_file, self.section)
 
         self.table_layout = QHBoxLayout()
         self.table_layout.setAlignment(Qt.AlignCenter) 
@@ -80,10 +81,11 @@ class pedicurePage(QWidget):
         
     def add_table_bindings(self):
 
-        for row in range(self.table.rowCount() ): 
+        if self.table: 
+            for row in range(self.table.rowCount() ): 
 
-            remove_button = self.table.cellWidget(row,4)
-            remove_button.clicked.connect(lambda _,row = row: self.delete_selected(row))
+                remove_button = self.table.cellWidget(row,4)
+                remove_button.clicked.connect(lambda _,row = row: self.delete_selected(row))
 
     def show_add_service_dialog(self):
         dialog = AddServiceDialog(self)
@@ -103,18 +105,21 @@ class pedicurePage(QWidget):
                 self.add_table_bindings()
     
     def delete_selected(self,index):
-        
-        name = self.table.item(int(index), 0).text()
-        msg_box = QMessageBox()
-        msg_box.setIcon(QMessageBox.Warning)
-        msg_box.setWindowTitle("Confirmation")
-        msg_box.setText(f"Are you sure you want to remove {name}?")
-        msg_box.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
-        msg_box.setDefaultButton(QMessageBox.No)
-    
-        response = msg_box.exec_()       
-        msg_box = QMessageBox()
 
+        name = self.table.item(int(index), 0)
+        if name: 
+            name = name.text() 
+            msg_box = QMessageBox()
+            msg_box.setIcon(QMessageBox.Warning)
+            msg_box.setWindowTitle("Confirmation")
+            msg_box.setText(f"Are you sure you want to remove {name}?")
+            msg_box.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
+            msg_box.setDefaultButton(QMessageBox.No)
+        
+            response = msg_box.exec_()       
+            msg_box = QMessageBox()
+        else: 
+            return False
         if response == QMessageBox.Yes:
             yaz = YAZ()
             yaz.delete_service(self.setting_file,self.section,index+1)
@@ -245,7 +250,7 @@ class AddServiceDialog(QDialog):
 
 # if __name__ == '__main__':
 #     app = QApplication(sys.argv)
-#     window = pedicurePage('')
+#     window = GenericServicePage('',"Maintenance")
 #     window.show()
 #     sys.exit(app.exec_())
 
